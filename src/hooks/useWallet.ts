@@ -28,6 +28,11 @@ export function useWallet() {
 		initializeSdk();
 	}, [isClient]);
 
+	// 로딩 상태만 리셋하는 함수
+	const resetLoadingState = useCallback(() => {
+		setWallet({ loading: false });
+	}, [setWallet]);
+
 	// 지갑 연결 함수
 	const connectWallet = useCallback(
 		async (type: WalletType) => {
@@ -35,7 +40,7 @@ export function useWallet() {
 
 			try {
 				// 로딩 상태 시작
-				setWallet({ loading: true });
+				setWallet({ loading: true, type });
 
 				let address: string;
 				let balance: number;
@@ -43,10 +48,16 @@ export function useWallet() {
 				// 지갑 유형에 따른 연결 로직 실행
 				if (type === 'xaman') {
 					const result = await XamanConnector.connect();
+					if (!result || !result.address) {
+						throw new Error('Xaman 지갑 연결이 취소되었거나 실패했습니다.');
+					}
 					address = result.address;
 					balance = await XamanConnector.getBalance(address);
 				} else if (type === 'futurepass') {
 					const result = await FuturePassConnector.connect();
+					if (!result || !result.address) {
+						throw new Error('FuturePass 지갑 연결이 취소되었거나 실패했습니다.');
+					}
 					address = result.address;
 					balance = await FuturePassConnector.getBalance(address);
 				} else {
@@ -66,13 +77,13 @@ export function useWallet() {
 			} catch (error) {
 				console.error('지갑 연결 오류:', error);
 
-				// 실패 시 상태 초기화
-				resetWallet();
+				// 실패 시 상태 초기화 - 명시적으로 loading: false 설정
+				setWallet({ loading: false, type: null });
 
 				return false;
 			}
 		},
-		[isClient, setWallet, resetWallet]
+		[isClient, setWallet]
 	);
 
 	// 지갑 연결 해제 함수
@@ -92,6 +103,8 @@ export function useWallet() {
 			return true;
 		} catch (error) {
 			console.error('지갑 연결 해제 오류:', error);
+			// 실패해도 상태는 초기화
+			resetWallet();
 			return false;
 		}
 	}, [isClient, wallet.type, resetWallet]);
@@ -101,6 +114,8 @@ export function useWallet() {
 		if (!isClient || !wallet.connected || !wallet.address) return;
 
 		try {
+			setWallet({ loading: true });
+
 			let balance: number;
 
 			if (wallet.type === 'xaman') {
@@ -108,12 +123,14 @@ export function useWallet() {
 			} else if (wallet.type === 'futurepass') {
 				balance = await FuturePassConnector.getBalance(wallet.address);
 			} else {
+				setWallet({ loading: false });
 				return;
 			}
 
-			setWallet({ balance });
+			setWallet({ balance, loading: false });
 		} catch (error) {
 			console.error('잔액 새로고침 오류:', error);
+			setWallet({ loading: false });
 		}
 	}, [isClient, wallet.connected, wallet.address, wallet.type, setWallet]);
 
@@ -122,6 +139,7 @@ export function useWallet() {
 		connectWallet,
 		disconnectWallet,
 		refreshBalance,
+		resetLoadingState,
 		getAddressDisplay: getDisplayAddress,
 		isClient,
 	};

@@ -7,13 +7,35 @@ import { useWallet } from '@/hooks/useWallet';
 import WalletModal from '@/components/wallet/WalletModal';
 
 export default function GlobalHeader() {
-	const { wallet, getAddressDisplay, disconnectWallet, refreshBalance, isClient } = useWallet();
+	const { wallet, getAddressDisplay, disconnectWallet, refreshBalance, resetLoadingState, isClient } = useWallet();
 	const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [localLoading, setLocalLoading] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	// 서버 렌더링 중에는 빈 주소를 사용
 	const addressDisplay = isClient ? getAddressDisplay() : '';
+
+	// 지갑 상태가 변경될 때마다 로컬 로딩 상태도 업데이트
+	useEffect(() => {
+		// 지갑이 연결되면 로딩 상태 해제
+		if (wallet.connected) {
+			setLocalLoading(false);
+		}
+	}, [wallet.connected]);
+
+	// 모달이 닫힐 때 로딩 상태 초기화
+	useEffect(() => {
+		if (!isWalletModalOpen) {
+			// 모달이 닫히면 무조건 로컬 로딩 상태 초기화
+			setLocalLoading(false);
+
+			// 지갑 연결이 되지 않은 상태에서 모달이 닫히면 글로벌 로딩 상태도 초기화
+			if (!wallet.connected) {
+				resetLoadingState();
+			}
+		}
+	}, [isWalletModalOpen, wallet.connected, resetLoadingState]);
 
 	// 드롭다운 외부 클릭 시 닫기
 	useEffect(() => {
@@ -41,6 +63,22 @@ export default function GlobalHeader() {
 	const handleRefreshBalance = async () => {
 		await refreshBalance();
 		setIsDropdownOpen(false);
+	};
+
+	// 지갑 연결 모달 열기
+	const handleOpenWalletModal = () => {
+		setLocalLoading(true);
+		setIsWalletModalOpen(true);
+	};
+
+	// 지갑 연결 모달 닫기
+	const handleCloseWalletModal = () => {
+		setIsWalletModalOpen(false);
+		setLocalLoading(false);
+		// 모달이 닫힐 때 확실하게 로딩 상태 초기화
+		if (!wallet.connected) {
+			resetLoadingState();
+		}
 	};
 
 	return (
@@ -114,14 +152,14 @@ export default function GlobalHeader() {
 									</div>
 								)}
 							</div>
-						) : wallet.loading ? (
+						) : wallet.loading || localLoading ? (
 							<button className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border">
 								<Loader className="w-4 h-4 mr-2 animate-spin" />
 								연결중...
 							</button>
 						) : (
 							<button
-								onClick={() => setIsWalletModalOpen(true)}
+								onClick={handleOpenWalletModal}
 								className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border hover:bg-dark-border transition-colors duration-150"
 							>
 								<Wallet className="w-4 h-4 mr-2" />
@@ -132,7 +170,7 @@ export default function GlobalHeader() {
 				)}
 			</div>
 
-			{isClient && <WalletModal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} />}
+			{isClient && <WalletModal isOpen={isWalletModalOpen} onClose={handleCloseWalletModal} />}
 		</header>
 	);
 }

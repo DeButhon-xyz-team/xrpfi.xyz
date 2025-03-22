@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
-import { Wallet, Loader, Info } from 'lucide-react';
+import { Wallet, Loader, Info, AlertCircle } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { WalletType } from '@/store/walletState';
 
@@ -13,7 +13,9 @@ type WalletModalProps = {
 };
 
 export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
-	const { connectWallet, wallet, isClient } = useWallet();
+	const { connectWallet, wallet, resetLoadingState, isClient } = useWallet();
+	const [connectError, setConnectError] = useState<string | null>(null);
+	const [isConnecting, setIsConnecting] = useState(false);
 
 	// 서버 사이드 렌더링인 경우 빈 모달 반환
 	if (!isClient) {
@@ -21,24 +23,57 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 	}
 
 	const handleConnect = async (type: WalletType) => {
-		const success = await connectWallet(type);
-		if (success) {
-			onClose();
+		try {
+			setConnectError(null);
+			setIsConnecting(true);
+
+			const success = await connectWallet(type);
+
+			if (success) {
+				onClose();
+			} else {
+				setConnectError('지갑 연결에 실패했습니다. 다시 시도해주세요.');
+				// 명시적으로 로딩 상태 초기화
+				resetLoadingState();
+			}
+		} catch (error) {
+			console.error('지갑 연결 오류:', error);
+			setConnectError('지갑 연결 중 오류가 발생했습니다.');
+			// 에러 발생 시에도 로딩 상태 초기화
+			resetLoadingState();
+		} finally {
+			setIsConnecting(false);
 		}
 	};
 
+	// 모달 닫기 핸들러
+	const handleClose = () => {
+		// 닫기 전에 로딩 상태 초기화
+		resetLoadingState();
+		setIsConnecting(false);
+		setConnectError(null);
+		onClose();
+	};
+
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} title="지갑 연결" size="sm">
+		<Modal isOpen={isOpen} onClose={handleClose} title="지갑 연결" size="sm">
 			<div className="space-y-4">
 				<p className="text-sm text-gray-400 mb-4">XRPL 지갑을 연결하여 스테이킹 서비스를 이용하세요.</p>
+
+				{connectError && (
+					<div className="p-3 bg-red-950/40 border border-red-800/50 rounded-md flex items-start space-x-2 mb-2">
+						<AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
+						<p className="text-xs text-red-400">{connectError}</p>
+					</div>
+				)}
 
 				<div className="flex flex-col space-y-3">
 					<Button
 						onClick={() => handleConnect('xaman')}
 						className="w-full justify-start items-center"
-						disabled={wallet.loading}
+						disabled={isConnecting}
 					>
-						{wallet.loading && wallet.type === 'xaman' ? (
+						{isConnecting && wallet.type === 'xaman' ? (
 							<Loader className="mr-2 h-4 w-4 animate-spin" />
 						) : (
 							<Wallet className="mr-2 h-4 w-4" />
@@ -50,9 +85,9 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 						onClick={() => handleConnect('futurepass')}
 						className="w-full justify-start items-center"
 						variant="secondary"
-						disabled={wallet.loading || true}
+						disabled={isConnecting || true}
 					>
-						{wallet.loading && wallet.type === 'futurepass' ? (
+						{isConnecting && wallet.type === 'futurepass' ? (
 							<Loader className="mr-2 h-4 w-4 animate-spin" />
 						) : (
 							<Wallet className="mr-2 h-4 w-4" />
