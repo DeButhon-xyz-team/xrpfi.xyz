@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import { Inter } from "next/font/google";
+import GlobalHeader from "@/components/global/GlobalHeader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,33 +18,7 @@ export default function RootLayout({
   return (
     <html lang="ko" className="dark">
       <body className={inter.className}>
-        <header className="border-b border-dark-border py-4">
-          <div className="container mx-auto px-4 flex justify-between items-center">
-            <div className="text-2xl font-bold text-neon-blue">XRPFI</div>
-            <nav>
-              <ul className="flex space-x-4">
-                <li>
-                  <a href="/" className="hover:text-neon-purple">
-                    홈
-                  </a>
-                </li>
-                <li>
-                  <a href="/stake" className="hover:text-neon-purple">
-                    스테이킹
-                  </a>
-                </li>
-                <li>
-                  <a href="/withdraw" className="hover:text-neon-purple">
-                    해지
-                  </a>
-                </li>
-              </ul>
-            </nav>
-            <button className="bg-neon-purple text-black px-4 py-1.5 rounded-md hover:bg-neon-purple/80">
-              지갑 연결
-            </button>
-          </div>
-        </header>
+        <GlobalHeader />
         {children}
         <footer className="border-t border-dark-border py-4 mt-auto">
           <div className="container mx-auto px-4 text-center">
