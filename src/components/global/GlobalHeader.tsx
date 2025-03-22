@@ -5,14 +5,14 @@ import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { Wallet, Loader, LogOut, RefreshCw } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
-import WalletModal from '@/components/wallet/WalletModal';
+import { useWalletStore } from '@/store/walletState';
 import { useToast } from '@/components/ui/ToastContainer';
 import { usePathname } from 'next/navigation';
 
 export default function GlobalHeader() {
 	const { wallet, getAddressDisplay, disconnectWallet, refreshBalance, resetLoadingState, isClient } = useWallet();
+	const { isWalletModalOpen, openWalletModal, closeWalletModal } = useWalletStore();
 	const { showToast } = useToast();
-	const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [localLoading, setLocalLoading] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);
@@ -96,12 +96,12 @@ export default function GlobalHeader() {
 	// 지갑 연결 모달 열기
 	const handleOpenWalletModal = () => {
 		setLocalLoading(true);
-		setIsWalletModalOpen(true);
+		openWalletModal();
 	};
 
 	// 지갑 연결 모달 닫기
 	const handleCloseWalletModal = () => {
-		setIsWalletModalOpen(false);
+		closeWalletModal();
 		setLocalLoading(false);
 		// 모달이 닫힐 때 확실하게 로딩 상태 초기화
 		if (!wallet.connected) {
@@ -166,7 +166,7 @@ export default function GlobalHeader() {
 												</button>
 												<button
 													onClick={() => {
-														setIsWalletModalOpen(true);
+														openWalletModal();
 														setIsDropdownOpen(false);
 													}}
 													className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150 cursor-pointer"
@@ -203,9 +203,6 @@ export default function GlobalHeader() {
 					)}
 				</div>
 			</header>
-
-			{/* 모달을 헤더 밖으로 이동하여 sticky 영향을 받지 않게 함 */}
-			{isClient && <WalletModal isOpen={isWalletModalOpen} onClose={handleCloseWalletModal} />}
 		</>
 	);
 }

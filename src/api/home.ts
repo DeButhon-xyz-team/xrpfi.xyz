@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
-import { api } from '@/api';
-import { ApiResponse } from './index';
+import { api, ApiResponse } from '@/api';
 
 // API 타입 정의
 export interface StakingSummary {
@@ -34,8 +33,6 @@ export const useGetDashboardDataApi = (address?: string) => {
 		select: (res) => res.data.data as DashboardData,
 		enabled: !!address,
 		staleTime: 5 * 60 * 1000, // 5분 동안 데이터 유지
-		retry: 1,
-		refetchOnWindowFocus: false,
 	});
 };
 
@@ -50,8 +47,6 @@ export const useGetStakingSummaryApi = (address?: string) => {
 		select: (res) => res.data.data as StakingSummary,
 		enabled: !!address,
 		staleTime: 5 * 60 * 1000, // 5분 동안 데이터 유지
-		retry: 1,
-		refetchOnWindowFocus: false,
 	});
 };
 
@@ -66,7 +61,5 @@ export const useGetAssetHistoryApi = (address?: string, days: number = 30) => {
 		select: (res) => res.data.data as AssetHistory[],
 		enabled: !!address,
 		staleTime: 5 * 60 * 1000, // 5분 동안 데이터 유지
-		retry: 1,
-		refetchOnWindowFocus: false,
 	});
 };

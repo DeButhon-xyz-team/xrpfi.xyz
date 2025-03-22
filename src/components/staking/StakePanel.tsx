@@ -5,6 +5,8 @@ import { useWallet } from '@/hooks/useWallet';
 import { Info, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContainer';
 import Modal from '@/components/ui/Modal';
+import { useWalletStore } from '@/store/walletState';
+import ConnectWalletButton from '@/components/wallet/ConnectWalletButton';
 
 // APR 연간 수익률 (관리자가 설정 가능한 값)
 const APR = 5; // 5%
@@ -20,6 +22,7 @@ export default function StakePanel() {
 	const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 	const [txError, setTxError] = useState<string | null>(null);
 	const [txHash, setTxHash] = useState<string | null>(null);
+	const { openWalletModal } = useWalletStore();
 
 	// 입력값 변경 핸들러
 	const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,11 +135,17 @@ export default function StakePanel() {
 		setTxStatus('idle');
 	};
 
-	return (
-		<>
-			<Card className="max-w-[768px] mx-auto">
-				<h2 className="text-xl font-semibold mb-4">스테이킹 입력</h2>
+	const renderContent = () => {
+		if (!wallet.connected) {
+			return (
+				<div className="py-6">
+					<ConnectWalletButton label="지갑 연결하기" />
+				</div>
+			);
+		}
 
+		return (
+			<>
 				<div className="mb-4">
 					<label className="block text-sm font-medium mb-2">
 						스테이킹 수량 (XRP)
@@ -152,7 +161,6 @@ export default function StakePanel() {
 						placeholder="0.0"
 						value={amount}
 						onChange={handleAmountChange}
-						disabled={!wallet.connected}
 						min="10"
 						max={wallet.balance || undefined}
 						step="0.000001"
@@ -183,13 +191,18 @@ export default function StakePanel() {
 					</div>
 				</div>
 
-				<Button
-					className="w-full"
-					onClick={executeStaking}
-					disabled={!wallet.connected || !amount || !!error || parseFloat(amount) <= 0}
-				>
-					{wallet.connected ? '스테이킹 실행' : '지갑 연결 필요'}
+				<Button className="w-full" onClick={executeStaking} disabled={!amount || !!error || parseFloat(amount) <= 0}>
+					스테이킹 실행
 				</Button>
+			</>
+		);
+	};
+
+	return (
+		<>
+			<Card className="max-w-[768px] mx-auto">
+				<h2 className="text-xl font-semibold mb-4">스테이킹 입력</h2>
+				{renderContent()}
 			</Card>
 
 			{/* 트랜잭션 상태 모달 */}

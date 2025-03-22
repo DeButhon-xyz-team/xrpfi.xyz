@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import GlobalHeader from '@/components/global/GlobalHeader';
 import GlobalFooter from '@/components/global/GlobalFooter';
 import { ToastContainer } from '@/components/ui/ToastContainer';
+import ClientProviders from '@/components/global/ClientProviders';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,9 +29,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 		<html lang="ko" className="dark">
 			<body className={`${inter.className} flex flex-col min-h-screen bg-gradient-to-b from-dark-background to-black`}>
 				<ToastContainer>
-					<GlobalHeader />
-					{children}
-					<GlobalFooter />
+					<ClientProviders>
+						<GlobalHeader />
+						{children}
+						<GlobalFooter />
+					</ClientProviders>
 				</ToastContainer>
 			</body>
 		</html>

@@ -68,9 +68,3 @@ export const apiClient = {
 	put: <T>(url: string, data?: any, config?: any) => api.put<T>(url, data, config),
 	delete: <T>(url: string, params?: any, config?: any) => api.delete<T>(url, { params, ...config }),
 };
-
-// 각 도메인 API 모듈 구현은 해당 파일에서 진행
-export * from './home';
-export * from './stake';
-export * from './withdraw';
-export * from './auth';

@@ -3,15 +3,18 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { useWallet } from '@/hooks/useWallet';
 import { useStakingStore } from '@/store/stakingState';
+import { useWalletStore } from '@/store/walletState';
 import { Info, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContainer';
 import Modal from '@/components/ui/Modal';
+import ConnectWalletButton from '@/components/wallet/ConnectWalletButton';
 
 type TransactionStatus = 'idle' | 'confirming' | 'processing' | 'success' | 'error';
 
 export default function WithdrawPanel() {
 	const { wallet, refreshBalance } = useWallet();
 	const { stakingInfo, setStakingInfo, isLoading, setIsLoading } = useStakingStore();
+	const { openWalletModal } = useWalletStore();
 	const { showToast } = useToast();
 
 	const [amount, setAmount] = useState<string>('');
@@ -39,7 +42,7 @@ export default function WithdrawPanel() {
 				// 테스트 데이터
 				const mockData = {
 					walletAddress: address,
-					stakedAmount: 500, // 500 XRP 스테이킹됨
+					stakedAmount: 50, // 500 XRP 스테이킹됨
 					earnedReward: 25.8, // 25.8 RLUSD 보상 누적
 				};
 
@@ -205,9 +208,8 @@ export default function WithdrawPanel() {
 
 	// 지갑 미연결 시 표시할 내용
 	const renderNotConnected = () => (
-		<div className="text-center py-6">
-			<p className="text-gray-400 mb-4">지갑을 연결하여 스테이킹 정보를 확인하세요</p>
-			<Button className="w-full">지갑 연결 필요</Button>
+		<div className="py-6">
+			<ConnectWalletButton label="지갑 연결하기" />
 		</div>
 	);
 

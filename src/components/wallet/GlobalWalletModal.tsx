@@ -1,26 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import { Wallet, Loader, Info, AlertCircle } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
-import { WalletType } from '@/store/walletState';
+import { useWalletStore, WalletType } from '@/store/walletState';
 import { useToast } from '@/components/ui/ToastContainer';
 
-type WalletModalProps = {
-	isOpen: boolean;
-	onClose: () => void;
-};
-
-export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
+export default function GlobalWalletModal() {
 	const { connectWallet, wallet, resetLoadingState, isClient } = useWallet();
+	const { isWalletModalOpen, closeWalletModal } = useWalletStore();
 	const { showToast } = useToast();
 	const [connectError, setConnectError] = useState<string | null>(null);
 	const [isConnecting, setIsConnecting] = useState(false);
+	const [isMounted, setIsMounted] = useState(false);
 
-	// 서버 사이드 렌더링인 경우 빈 모달 반환
-	if (!isClient) {
+	// 클라이언트 사이드에서만 렌더링되도록 마운트 상태 확인
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
+
+	// 서버 사이드 렌더링 시에는 null 반환
+	if (!isMounted || !isClient) {
 		return null;
 	}
 
@@ -33,7 +35,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
 			if (result.success) {
 				showToast('success', `${type === 'xaman' ? 'Xaman' : 'FuturePass'} 지갑이 연결되었습니다`);
-				onClose();
+				closeWalletModal();
 			} else {
 				setConnectError(result.error || '지갑 연결에 실패했습니다. 다시 시도해주세요.');
 				// 명시적으로 로딩 상태 초기화
@@ -55,11 +57,11 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 		resetLoadingState();
 		setIsConnecting(false);
 		setConnectError(null);
-		onClose();
+		closeWalletModal();
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={handleClose} title="지갑 연결" size="sm">
+		<Modal isOpen={isWalletModalOpen} onClose={handleClose} title="지갑 연결" size="sm">
 			<div className="space-y-4">
 				<p className="text-sm text-gray-400 mb-4">XRPL 지갑을 연결하여 스테이킹 서비스를 이용하세요.</p>
 

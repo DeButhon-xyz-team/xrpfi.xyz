@@ -1,22 +1,10 @@
 import React from 'react';
 import { useStakingStore } from '@/store/stakingState';
-import { useWalletStore } from '@/store/walletState';
 import Card from '@/components/ui/Card';
 import Link from 'next/link';
 
 const StakingSummary: React.FC = () => {
 	const { stakingInfo, isLoading } = useStakingStore();
-	const { wallet } = useWalletStore();
-
-	if (!wallet.connected) {
-		return (
-			<Card title="스테이킹 개요" className="w-full">
-				<div className="text-center py-6">
-					<p className="text-gray-400">지갑을 연결하여 스테이킹 정보를 확인하세요.</p>
-				</div>
-			</Card>
-		);
-	}
 
 	if (isLoading) {
 		return (

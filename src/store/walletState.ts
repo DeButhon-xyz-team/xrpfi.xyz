@@ -18,6 +18,10 @@ interface WalletStore {
 	setWallet: (wallet: Partial<WalletState>) => void;
 	resetWallet: () => void;
 	getDisplayAddress: () => string;
+	// 지갑 모달 상태 추가
+	isWalletModalOpen: boolean;
+	openWalletModal: () => void;
+	closeWalletModal: () => void;
 }
 
 const INITIAL_STATE: WalletState = {
@@ -32,6 +36,8 @@ export const useWalletStore = create<WalletStore>()(
 	persist(
 		(set, get) => ({
 			wallet: INITIAL_STATE,
+			// 지갑 모달 상태 초기값
+			isWalletModalOpen: false,
 
 			setWallet: (updates) =>
 				set((state) => ({
@@ -49,6 +55,10 @@ export const useWalletStore = create<WalletStore>()(
 
 				return address.length > 10 ? `${address.slice(0, 6)}...${address.slice(-4)}` : address;
 			},
+
+			// 지갑 모달 상태 관리 함수
+			openWalletModal: () => set({ isWalletModalOpen: true }),
+			closeWalletModal: () => set({ isWalletModalOpen: false }),
 		}),
 		{
 			name: 'xrpfi-wallet-storage', // 로컬 스토리지 키 이름
@@ -60,6 +70,7 @@ export const useWalletStore = create<WalletStore>()(
 					type: state.wallet.type,
 					// loading 상태는 저장하지 않음 (항상 false로 초기화)
 				},
+				// 모달 상태는 저장하지 않음
 			}),
 		}
 	)

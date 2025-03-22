@@ -1,4 +1,4 @@
-import { ApiResponse } from '../index';
+import { ApiResponse } from '@/api';
 import { StakingSummary, AssetHistory, DashboardData } from '../home';
 
 // Mock API 응답 지연 시간 (ms)

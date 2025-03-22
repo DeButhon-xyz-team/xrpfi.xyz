@@ -5,6 +5,7 @@ import { useWallet } from '@/hooks/useWallet';
 import { ExternalLink, Copy, RefreshCw, AlertCircle, CircleDollarSign, Check, Loader2 } from 'lucide-react';
 import IconButton from '@/components/ui/IconButton';
 import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
 import { useToast } from '@/components/ui/ToastContainer';
 
 export default function WalletInfo() {
@@ -15,10 +16,6 @@ export default function WalletInfo() {
 	const [requestError, setRequestError] = useState<string | null>(null);
 	const [isCopied, setIsCopied] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-
-	if (!wallet.connected || !wallet.address) {
-		return null;
-	}
 
 	// 주소 복사 함수
 	const copyAddress = async () => {
@@ -115,89 +112,91 @@ export default function WalletInfo() {
 	const needsTestnetXRP = wallet.balance === 0;
 
 	return (
-		<div className="p-3 bg-dark-card rounded-lg border border-dark-border">
-			<div className="flex items-center justify-between mb-2">
-				<div className="flex items-center overflow-hidden">
-					<span className="text-sm font-medium mr-1 flex-shrink-0">지갑 주소:</span>
-					<span className="text-sm font-mono truncate">{addressDisplay}</span>
+		<Card title="지갑 정보" className="w-full">
+			<div className="p-3 bg-dark-card rounded-lg border border-dark-border">
+				<div className="flex items-center justify-between mb-2">
+					<div className="flex items-center overflow-hidden">
+						<span className="text-sm font-medium mr-1 flex-shrink-0">지갑 주소:</span>
+						<span className="text-sm font-mono truncate">{addressDisplay}</span>
+					</div>
+					<div className="flex space-x-1 flex-shrink-0">
+						<IconButton
+							icon={isCopied ? Check : Copy}
+							size="sm"
+							variant="outline"
+							onClick={copyAddress}
+							className={`cursor-pointer ${isCopied ? 'text-green-500 border-green-500' : ''}`}
+						/>
+						<IconButton
+							icon={ExternalLink}
+							size="sm"
+							variant="outline"
+							onClick={viewOnExplorer}
+							className="cursor-pointer"
+						/>
+					</div>
 				</div>
-				<div className="flex space-x-1 flex-shrink-0">
-					<IconButton
-						icon={isCopied ? Check : Copy}
-						size="sm"
-						variant="outline"
-						onClick={copyAddress}
-						className={`cursor-pointer ${isCopied ? 'text-green-500 border-green-500' : ''}`}
-					/>
-					<IconButton
-						icon={ExternalLink}
-						size="sm"
-						variant="outline"
-						onClick={viewOnExplorer}
-						className="cursor-pointer"
-					/>
-				</div>
-			</div>
 
-			<div className="flex items-center justify-between">
-				<div className="flex items-center">
-					<span className="text-sm font-medium mr-1">잔액:</span>
-					<span className={`${needsTestnetXRP ? 'text-yellow-400' : 'text-neon-green'}`}>
-						{wallet.balance.toFixed(2)} XRP
-					</span>
+				<div className="flex items-center justify-between">
+					<div className="flex items-center">
+						<span className="text-sm font-medium mr-1">잔액:</span>
+						<span className={`${needsTestnetXRP ? 'text-yellow-400' : 'text-neon-green'}`}>
+							{wallet.balance.toFixed(2)} XRP
+						</span>
+					</div>
+					<div className="flex space-x-1">
+						<IconButton
+							icon={RefreshCw}
+							size="sm"
+							variant="outline"
+							onClick={handleRefreshBalance}
+							disabled={isRefreshing}
+							className={`cursor-pointer ${isRefreshing ? 'animate-spin' : ''}`}
+						/>
+					</div>
 				</div>
-				<div className="flex space-x-1">
-					<IconButton
-						icon={RefreshCw}
-						size="sm"
-						variant="outline"
-						onClick={handleRefreshBalance}
-						disabled={isRefreshing}
-						className={`cursor-pointer ${isRefreshing ? 'animate-spin' : ''}`}
-					/>
-				</div>
-			</div>
 
-			{needsTestnetXRP && (
-				<div className="flex flex-col space-y-2 mt-4">
-					{requestError && (
-						<div className="flex items-center text-red-500 text-sm mb-2">
-							<AlertCircle className="w-4 h-4 mr-1" />
-							<span>{requestError}</span>
-						</div>
-					)}
-
-					<Button
-						onClick={handleRequestTestnetXRP}
-						disabled={isRequestingXRP}
-						className="w-full cursor-pointer"
-						variant="secondary"
-					>
-						{isRequestingXRP ? (
-							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								요청 중...
-							</>
-						) : (
-							<>
-								<CircleDollarSign className="mr-2 h-4 w-4" />
-								테스트넷 XRP 요청하기
-							</>
+				{needsTestnetXRP && (
+					<div className="flex flex-col space-y-2 mt-4">
+						{requestError && (
+							<div className="flex items-center text-red-500 text-sm mb-2">
+								<AlertCircle className="w-4 h-4 mr-1" />
+								<span>{requestError}</span>
+							</div>
 						)}
-					</Button>
 
-					<p className="text-xs text-muted-foreground mt-1">
-						테스트넷 XRP를 요청하면 새 창이 열립니다. 창에서 &quot;Create Account&quot; 버튼을 클릭하세요.
-					</p>
-				</div>
-			)}
+						<Button
+							onClick={handleRequestTestnetXRP}
+							disabled={isRequestingXRP}
+							className="w-full cursor-pointer"
+							variant="secondary"
+						>
+							{isRequestingXRP ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									요청 중...
+								</>
+							) : (
+								<>
+									<CircleDollarSign className="mr-2 h-4 w-4" />
+									테스트넷 XRP 요청하기
+								</>
+							)}
+						</Button>
 
-			{/* 복사 시 알림 - 화면에 시각적 피드백 제공 */}
-			{isCopied && (
-				<div className="absolute top-0 right-0 bg-green-800/70 text-green-100 text-xs px-2 py-1 rounded m-2">
-					주소가 복사되었습니다!
-				</div>
-			)}
-		</div>
+						<p className="text-xs text-muted-foreground mt-1">
+							테스트넷 XRP를 요청하면 새 창이 열립니다. 창에서 &quot;Create Account&quot; 버튼을 클릭하세요.
+						</p>
+					</div>
+				)}
+
+				{/* 복사 시 알림 - 화면에 시각적 피드백 제공 */}
+				{isCopied && (
+					<div className="absolute top-0 right-0 bg-green-800/70 text-green-100 text-xs px-2 py-1 rounded m-2">
+						주소가 복사되었습니다!
+					</div>
+				)}
+			</div>
+		</Card>
 	);
 }

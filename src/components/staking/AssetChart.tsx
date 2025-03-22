@@ -1,7 +1,6 @@
 import React from 'react';
 import Card from '@/components/ui/Card';
 import { useStakingStore } from '@/store/stakingState';
-import { useWalletStore } from '@/store/walletState';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const formatDate = (dateStr: string) => {
@@ -11,7 +10,6 @@ const formatDate = (dateStr: string) => {
 
 const AssetChart: React.FC = () => {
 	const { stakingInfo, isLoading } = useStakingStore();
-	const { wallet } = useWalletStore();
 
 	// 데이터 포인트 계산
 	const chartData = stakingInfo.history.map((entry) => ({
@@ -20,16 +18,6 @@ const AssetChart: React.FC = () => {
 		reward: entry.reward,
 		total: entry.staked + entry.reward,
 	}));
-
-	if (!wallet.connected) {
-		return (
-			<Card title="자산 추이" className="w-full">
-				<div className="text-center py-6">
-					<p className="text-gray-400">지갑을 연결하여 자산 추이를 확인하세요.</p>
-				</div>
-			</Card>
-		);
-	}
 
 	if (isLoading) {
 		return (
