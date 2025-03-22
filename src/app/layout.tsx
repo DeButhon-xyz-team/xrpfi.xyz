@@ -6,9 +6,9 @@ import GlobalFooter from '@/components/global/GlobalFooter';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-	title: 'XRPFI - XRPL 사용자를 위한 멀티체인 스테이킹 수익 미러링 플랫폼',
+	title: 'XRPFI - XRPL 사용자를 위한 멀티체인 스테이킹',
 	description:
-		'XRP를 예치하면 Axelar를 통해 PoS 체인으로 자산이 브릿징되고, 스테이킹 수익이 XRPL 상에서 RLUSD 등으로 지급되는 Web3 서비스',
+		'XRP를 예치하면 Axelar를 통해 PoS 체인으로 자산이 브릿징되고, 스테이킹 수익이 XRPL 상에서 RLUSD 등으로 지급됩니다',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

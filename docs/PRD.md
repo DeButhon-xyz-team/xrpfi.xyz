@@ -34,14 +34,14 @@
 | **Frontend**      | Next.js, TypeScript, Tailwind CSS v4           |
 | **UI 라이브러리** | shadcn/ui, lucide-react                        |
 | **지갑 연동**     | xrpl.js, WalletConnect (Xaman), FuturePass API |
-| **상태 관리**     | Recoil                                         |
+| **상태 관리**     | Zustand                                        |
 | **데이터 통신**   | TanStack Query (@tanstack/react-query)         |
 | **차트 시각화**   | Recharts                                       |
 
 **추가 패키지**
 
 ```bash
-npm install tailwindcss lucide-react @tanstack/react-query recoil recharts xrpl walletconnect
+npm install tailwindcss lucide-react @tanstack/react-query zustand recharts xrpl walletconnect
 ```
 
 ---
@@ -85,7 +85,7 @@ npm install tailwindcss lucide-react @tanstack/react-query recoil recharts xrpl 
 | ---------- | ---------------------------------------------- |
 | Xaman      | WalletConnect / xumm SDK                       |
 | FuturePass | The Root Network 연동 방식 고려, 최소 MVP 지원 |
-| 지갑 상태  | 전역 상태로 관리 (Recoil), Header에 표시       |
+| 지갑 상태  | 전역 상태로 관리 (Zustand), Header에 표시      |
 
 ---
 
@@ -127,10 +127,10 @@ type StakingInfo = {
 
 ### 🔵 3단계: 지갑 연결
 
-- [ ] Xaman WalletConnect 연동 (연결/해제 상태 관리)
-- [ ] FuturePass 최소 연결 구조 설계 및 UI 반영
-- [ ] Recoil로 전역 지갑 상태 저장
-- [ ] 지갑 주소, 잔액 UI 구성
+- [x] Xaman WalletConnect 연동 (연결/해제 상태 관리)
+- [x] FuturePass 최소 연결 구조 설계 및 UI 반영
+- [x] Zustand로 전역 지갑 상태 저장
+- [x] 지갑 주소, 잔액 UI 구성
 
 ---
 
@@ -159,7 +159,7 @@ type StakingInfo = {
 
 ### 🧠 5단계: 데이터/상태 관리
 
-- [ ] Recoil 기반 지갑 및 사용자 정보 상태 관리
+- [ ] Zustand 기반 지갑 및 사용자 정보 상태 관리
 - [ ] TanStack Query 도입 – staking 정보, 보상 이력 등 캐싱
 - [ ] Axios 기반 API 요청 함수 정리
 

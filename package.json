@@ -18,9 +18,9 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "recharts": "^2.15.1",
-    "recoil": "^0.7.7",
     "walletconnect": "^1.7.8",
-    "xrpl": "^4.2.0"
+    "xrpl": "^4.2.0",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
