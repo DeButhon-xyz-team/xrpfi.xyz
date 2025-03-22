@@ -1,6 +1,6 @@
 # PRD – XRPFI (xrpfi.xyz)
 
-> **“XRPL 사용자를 위한 멀티체인 스테이킹 수익 미러링 플랫폼”**
+> **"XRPL 사용자를 위한 멀티체인 스테이킹 수익 미러링 플랫폼"**
 
 ---
 
@@ -93,14 +93,14 @@ npm install tailwindcss lucide-react @tanstack/react-query recoil recharts xrpl 
 
 ```ts
 type StakingInfo = {
-  walletAddress: string;
-  stakedAmount: number;
-  earnedReward: number;
-  history: Array<{
-    date: string;
-    staked: number;
-    reward: number;
-  }>;
+	walletAddress: string;
+	stakedAmount: number;
+	earnedReward: number;
+	history: Array<{
+		date: string;
+		staked: number;
+		reward: number;
+	}>;
 };
 ```
 
@@ -119,9 +119,9 @@ type StakingInfo = {
 
 ### 🟢 2단계: 공통 레이아웃 및 컴포넌트
 
-- [ ] Header / Footer / Page Wrapper 작성
-- [ ] 공통 Button, Card, Modal, Toast 컴포넌트 제작
-- [ ] 테마 스타일 가이드 확정 (폰트, 색상, 간격 등)
+- [x] Header / Footer / Page Wrapper 작성
+- [x] 공통 Button, Card, Modal, Toast 컴포넌트 제작
+- [x] 테마 스타일 가이드 확정 (폰트, 색상, 간격 등)
 
 ---
 
