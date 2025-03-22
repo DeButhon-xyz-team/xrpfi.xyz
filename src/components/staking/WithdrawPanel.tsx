@@ -1,11 +1,7 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import PageWrapper from '@/components/global/PageWrapper';
 import { useWallet } from '@/hooks/useWallet';
-import WalletModal from '@/components/wallet/WalletModal';
 import { useStakingStore } from '@/store/stakingState';
 import { Info, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContainer';
@@ -13,12 +9,11 @@ import Modal from '@/components/ui/Modal';
 
 type TransactionStatus = 'idle' | 'confirming' | 'processing' | 'success' | 'error';
 
-export default function Withdraw() {
+export default function WithdrawPanel() {
 	const { wallet, refreshBalance } = useWallet();
 	const { stakingInfo, setStakingInfo, isLoading, setIsLoading } = useStakingStore();
 	const { showToast } = useToast();
 
-	const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 	const [amount, setAmount] = useState<string>('');
 	const [sliderValue, setSliderValue] = useState<number>(0);
 	const [error, setError] = useState<string | null>(null);
@@ -153,7 +148,7 @@ export default function Withdraw() {
 
 							// 스테이킹 금액 업데이트
 							const newStakedAmount = stakingInfo.stakedAmount - parseFloat(amount);
-							setStakingInfo({ stakedAmount: newStakedAmount });
+							setStakingInfo({ ...stakingInfo, stakedAmount: newStakedAmount });
 
 							// 잔액 새로고침
 							await refreshBalance();
@@ -200,100 +195,104 @@ export default function Withdraw() {
 		</div>
 	);
 
+	// 로딩 중일 때 표시할 내용
+	const renderLoading = () => (
+		<div className="text-center py-8">
+			<Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-neon-purple" />
+			<p className="text-gray-400">스테이킹 정보를 불러오는 중...</p>
+		</div>
+	);
+
+	// 지갑 미연결 시 표시할 내용
+	const renderNotConnected = () => (
+		<div className="text-center py-6">
+			<p className="text-gray-400 mb-4">지갑을 연결하여 스테이킹 정보를 확인하세요</p>
+			<Button className="w-full">지갑 연결 필요</Button>
+		</div>
+	);
+
+	// 해지 입력 UI
+	const renderWithdrawForm = () => (
+		<>
+			<div className="p-3 bg-dark-background/40 rounded-md mb-4">
+				<p className="text-sm font-medium">
+					현재 스테이킹: <span className="text-white">{stakingInfo.stakedAmount.toFixed(2)} XRP</span>
+				</p>
+				<p className="text-sm font-medium">
+					누적 보상: <span className="text-neon-green">{stakingInfo.earnedReward.toFixed(4)} RLUSD</span>
+				</p>
+			</div>
+
+			<div className="mb-4">
+				<div className="flex justify-between mb-1">
+					<label className="block text-sm font-medium">해지 수량 (XRP)</label>
+					<button className="text-xs text-neon-blue hover:text-neon-purple" onClick={setMaxAmount}>
+						최대 금액
+					</button>
+				</div>
+
+				<input
+					type="number"
+					className={`w-full px-3 py-2 bg-dark-background border ${
+						error ? 'border-red-500' : 'border-dark-border'
+					} rounded-md focus:outline-none focus:ring-1 focus:ring-neon-purple mb-2`}
+					placeholder="0.0"
+					value={amount}
+					onChange={handleAmountChange}
+					min="1"
+					max={stakingInfo.stakedAmount}
+					step="0.000001"
+				/>
+
+				<div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+					<span>0 XRP</span>
+					<span>{stakingInfo.stakedAmount.toFixed(2)} XRP</span>
+				</div>
+
+				<input
+					type="range"
+					className="w-full h-2 bg-dark-background rounded-lg appearance-none cursor-pointer accent-neon-purple"
+					min="0"
+					max="100"
+					value={sliderValue}
+					onChange={handleSliderChange}
+				/>
+
+				{error && (
+					<p className="text-red-500 text-xs mt-2 flex items-center">
+						<AlertCircle className="h-3 w-3 mr-1" />
+						{error}
+					</p>
+				)}
+			</div>
+
+			<div className="mb-4 p-3 bg-dark-background/30 rounded-md flex items-start space-x-2">
+				<Info className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+				<div className="text-xs text-gray-400">
+					<p className="mb-1">해지된 XRP는 지갑으로 반환되기까지 약 24시간이 소요됩니다.</p>
+					<p>해지 시 트랜잭션 비용(네트워크 수수료)이 발생할 수 있습니다.</p>
+				</div>
+			</div>
+
+			<Button className="w-full" onClick={executeWithdraw} disabled={!amount || !!error || parseFloat(amount) <= 0}>
+				해지 실행
+			</Button>
+		</>
+	);
+
 	return (
-		<PageWrapper title="스테이킹 해지">
+		<>
 			<Card className="max-w-md mx-auto">
 				<h2 className="text-xl font-semibold mb-4">스테이킹 해지</h2>
 
-				{!wallet.connected ? (
-					<div className="text-center py-6">
-						<p className="text-gray-400 mb-4">지갑을 연결하여 스테이킹 정보를 확인하세요</p>
-						<Button className="w-full" onClick={() => setIsWalletModalOpen(true)}>
-							지갑 연결
-						</Button>
-					</div>
-				) : isLoading ? (
-					<div className="text-center py-8">
-						<Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-neon-purple" />
-						<p className="text-gray-400">스테이킹 정보를 불러오는 중...</p>
-					</div>
-				) : stakingInfo.stakedAmount <= 0 ? (
-					renderNoStaking()
-				) : (
-					<>
-						<div className="p-3 bg-dark-background/40 rounded-md mb-4">
-							<p className="text-sm font-medium">
-								현재 스테이킹: <span className="text-white">{stakingInfo.stakedAmount.toFixed(2)} XRP</span>
-							</p>
-							<p className="text-sm font-medium">
-								누적 보상: <span className="text-neon-green">{stakingInfo.earnedReward.toFixed(4)} RLUSD</span>
-							</p>
-						</div>
-
-						<div className="mb-4">
-							<div className="flex justify-between mb-1">
-								<label className="block text-sm font-medium">해지 수량 (XRP)</label>
-								<button className="text-xs text-neon-blue hover:text-neon-purple" onClick={setMaxAmount}>
-									최대 금액
-								</button>
-							</div>
-
-							<input
-								type="number"
-								className={`w-full px-3 py-2 bg-dark-background border ${
-									error ? 'border-red-500' : 'border-dark-border'
-								} rounded-md focus:outline-none focus:ring-1 focus:ring-neon-purple mb-2`}
-								placeholder="0.0"
-								value={amount}
-								onChange={handleAmountChange}
-								min="1"
-								max={stakingInfo.stakedAmount}
-								step="0.000001"
-							/>
-
-							<div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-								<span>0 XRP</span>
-								<span>{stakingInfo.stakedAmount.toFixed(2)} XRP</span>
-							</div>
-
-							<input
-								type="range"
-								className="w-full h-2 bg-dark-background rounded-lg appearance-none cursor-pointer accent-neon-purple"
-								min="0"
-								max="100"
-								value={sliderValue}
-								onChange={handleSliderChange}
-							/>
-
-							{error && (
-								<p className="text-red-500 text-xs mt-2 flex items-center">
-									<AlertCircle className="h-3 w-3 mr-1" />
-									{error}
-								</p>
-							)}
-						</div>
-
-						<div className="mb-4 p-3 bg-dark-background/30 rounded-md flex items-start space-x-2">
-							<Info className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
-							<div className="text-xs text-gray-400">
-								<p className="mb-1">해지된 XRP는 지갑으로 반환되기까지 약 24시간이 소요됩니다.</p>
-								<p>해지 시 트랜잭션 비용(네트워크 수수료)이 발생할 수 있습니다.</p>
-							</div>
-						</div>
-
-						<Button
-							className="w-full"
-							onClick={executeWithdraw}
-							disabled={!amount || !!error || parseFloat(amount) <= 0}
-						>
-							해지 실행
-						</Button>
-					</>
-				)}
+				{!wallet.connected
+					? renderNotConnected()
+					: isLoading
+					? renderLoading()
+					: stakingInfo.stakedAmount <= 0
+					? renderNoStaking()
+					: renderWithdrawForm()}
 			</Card>
-
-			{/* 지갑 연결 모달 */}
-			<WalletModal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} />
 
 			{/* 트랜잭션 상태 모달 */}
 			<Modal
@@ -362,6 +361,6 @@ export default function Withdraw() {
 					)}
 				</div>
 			</Modal>
-		</PageWrapper>
+		</>
 	);
 }

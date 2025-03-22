@@ -1,11 +1,7 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import PageWrapper from '@/components/global/PageWrapper';
 import { useWallet } from '@/hooks/useWallet';
-import WalletModal from '@/components/wallet/WalletModal';
 import { Info, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContainer';
 import Modal from '@/components/ui/Modal';
@@ -15,10 +11,9 @@ const APR = 6.5; // 6.5%
 
 type TransactionStatus = 'idle' | 'confirming' | 'processing' | 'success' | 'error';
 
-export default function Stake() {
+export default function StakePanel() {
 	const { wallet, refreshBalance } = useWallet();
 	const { showToast } = useToast();
-	const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 	const [amount, setAmount] = useState<string>('');
 	const [error, setError] = useState<string | null>(null);
 	const [txStatus, setTxStatus] = useState<TransactionStatus>('idle');
@@ -138,7 +133,7 @@ export default function Stake() {
 	};
 
 	return (
-		<PageWrapper title="XRP 스테이킹">
+		<>
 			<Card className="max-w-md mx-auto">
 				<h2 className="text-xl font-semibold mb-4">스테이킹 입력</h2>
 
@@ -188,19 +183,14 @@ export default function Stake() {
 					</div>
 				</div>
 
-				{wallet.connected ? (
-					<Button className="w-full" onClick={executeStaking} disabled={!amount || !!error || parseFloat(amount) <= 0}>
-						스테이킹 실행
-					</Button>
-				) : (
-					<Button className="w-full" onClick={() => setIsWalletModalOpen(true)}>
-						지갑 연결
-					</Button>
-				)}
+				<Button
+					className="w-full"
+					onClick={executeStaking}
+					disabled={!wallet.connected || !amount || !!error || parseFloat(amount) <= 0}
+				>
+					{wallet.connected ? '스테이킹 실행' : '지갑 연결 필요'}
+				</Button>
 			</Card>
-
-			{/* 지갑 연결 모달 */}
-			<WalletModal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} />
 
 			{/* 트랜잭션 상태 모달 */}
 			<Modal
@@ -268,6 +258,6 @@ export default function Stake() {
 					)}
 				</div>
 			</Modal>
-		</PageWrapper>
+		</>
 	);
 }

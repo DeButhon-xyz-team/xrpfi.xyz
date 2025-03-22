@@ -124,13 +124,8 @@ export default function GlobalHeader() {
 								</Link>
 							</li>
 							<li>
-								<Link href="/stake" className="hover:text-neon-purple transition-colors duration-150 cursor-pointer">
+								<Link href="/staking" className="hover:text-neon-purple transition-colors duration-150 cursor-pointer">
 									스테이킹
-								</Link>
-							</li>
-							<li>
-								<Link href="/withdraw" className="hover:text-neon-purple transition-colors duration-150 cursor-pointer">
-									해지
 								</Link>
 							</li>
 						</ul>
