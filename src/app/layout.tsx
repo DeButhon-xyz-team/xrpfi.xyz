@@ -13,11 +13,6 @@ export const metadata = {
 		title: 'XRPFI - XRPL 사용자를 위한 멀티체인 스테이킹',
 		description: 'XRP를 예치하면 Axelar를 통해 PoS 체인으로 자산이 브릿징되고, 스테이킹 수익이 RLUSD로 지급됩니다',
 		siteName: 'XRPFI',
-		images: [
-			{
-				url: '/opengraph.png',
-			},
-		],
 	},
 };
 
