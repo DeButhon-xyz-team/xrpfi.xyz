@@ -16,6 +16,26 @@ export interface EstimateRewardResponse {
 	apr: number;
 }
 
+// XRPL에서 EVM으로 브릿지 요청 interface
+export interface BridgeXrplToEvmRequest {
+	amount: number;
+	sourceAddress: string;
+	destinationAddress: string;
+	sourceSeed?: string;
+	autoSwap?: boolean;
+}
+
+// 브릿지 요청 응답 interface
+export interface BridgeXrplToEvmResponse {
+	requestId: string;
+	status: string;
+	sourceAddress: string;
+	destinationAddress: string;
+	amount: number;
+	autoTransfer: boolean;
+	autoSwap: boolean;
+}
+
 // 스테이킹 요청 interface
 export interface StakeRequest {
 	walletAddress: string;
@@ -152,5 +172,15 @@ export const useGetWithdrawStatusApi = (requestId?: string) => {
 		enabled: !!requestId,
 		refetchInterval: 30000, // 30초마다 자동 갱신
 		retry: 1,
+	});
+};
+
+/**
+ * XRPL에서 EVM으로 스테이킹 브릿지 요청
+ */
+export const useBridgeXrplToEvmApi = () => {
+	const url = '/bridge/xrpl-to-evm';
+	return useMutation<AxiosResponse<ApiResponse<BridgeXrplToEvmResponse>>, AxiosError, BridgeXrplToEvmRequest>({
+		mutationFn: (data: BridgeXrplToEvmRequest) => api.post(url, data),
 	});
 };

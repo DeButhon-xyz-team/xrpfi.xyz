@@ -7,11 +7,19 @@ import { useToast } from '@/components/ui/ToastContainer';
 import Modal from '@/components/ui/Modal';
 import { useWalletStore } from '@/store/walletState';
 import ConnectWalletButton from '@/components/wallet/ConnectWalletButton';
+import { useBridgeXrplToEvmApi } from '@/api/staking';
 
 // APR 연간 수익률 (관리자가 설정 가능한 값)
 const APR = 5; // 5%
 
 type TransactionStatus = 'idle' | 'confirming' | 'processing' | 'success' | 'error';
+
+// 전역 xumm SDK 접근
+declare global {
+	interface Window {
+		Xumm: any;
+	}
+}
 
 export default function StakePanel() {
 	const { wallet, refreshBalance } = useWallet();
@@ -23,6 +31,8 @@ export default function StakePanel() {
 	const [txError, setTxError] = useState<string | null>(null);
 	const [txHash, setTxHash] = useState<string | null>(null);
 	const { openWalletModal } = useWalletStore();
+	const bridgeMutation = useBridgeXrplToEvmApi();
+	const [requestId, setRequestId] = useState<string | null>(null);
 
 	// 입력값 변경 핸들러
 	const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,41 +96,58 @@ export default function StakePanel() {
 		setIsStatusModalOpen(true);
 		setTxError(null);
 		setTxHash(null);
+		setRequestId(null);
+	};
+
+	// 스테이킹 확인 후 실행
+	const confirmStaking = async () => {
+		if (!wallet.address) {
+			setTxStatus('error');
+			setTxError('지갑 주소 정보를 찾을 수 없습니다.');
+			return;
+		}
 
 		try {
-			// 유저 확인 후 거래 진행
-			setTimeout(() => {
-				// 실제 구현에서는 XRPL SDK를 통한 트랜잭션 생성과 서명 로직이 필요합니다
-				setTxStatus('processing');
+			setTxStatus('processing');
 
-				// 트랜잭션 처리 시뮬레이션 (5초)
-				setTimeout(async () => {
-					try {
-						// 성공 시나리오 (90% 확률)
-						if (Math.random() > 0.1) {
-							setTxStatus('success');
-							setTxHash('DEMO' + Math.random().toString(36).substring(2, 12).toUpperCase());
+			const stakeAmount = parseFloat(amount);
 
-							// 잔액 새로고침
-							await refreshBalance();
-							showToast('success', `${amount} XRP 스테이킹이 성공적으로 처리되었습니다`);
-						} else {
-							// 실패 시나리오 (10% 확률)
-							setTxStatus('error');
-							setTxError('네트워크 혼잡으로 트랜잭션이 실패했습니다. 다시 시도해주세요.');
-							showToast('error', '스테이킹 처리 중 오류가 발생했습니다');
-						}
-					} catch (error) {
-						setTxStatus('error');
-						setTxError('트랜잭션 처리 중 오류가 발생했습니다');
-						showToast('error', '스테이킹 처리 중 오류가 발생했습니다');
-					}
-				}, 5000);
-			}, 2000);
+			// Xaman SDK 확인
+			if (typeof window !== 'undefined' && window.Xumm && wallet.type === 'xaman') {
+				// XRPL to EVM 브릿지 요청 - Xaman을 통한 서명 방식
+				const response = await bridgeMutation.mutateAsync({
+					amount: stakeAmount,
+					sourceAddress: wallet.address,
+					destinationAddress: '0xFE8d94b2605EE277b74aFdF1C8820eb3287388d3',
+					// sourceSeed 대신 서명 요청을 통해 처리
+					autoSwap: true,
+				});
+
+				// 응답 처리
+				if (response.data.success && response.data.data) {
+					const responseData = response.data.data;
+					setRequestId(responseData.requestId);
+					setTxStatus('success');
+					showToast('success', `${amount} XRP 스테이킹이 성공적으로 요청되었습니다`);
+
+					// 잔액 새로고침
+					await refreshBalance();
+				} else {
+					setTxStatus('error');
+					setTxError('브릿지 요청이 실패했습니다.');
+					showToast('error', '스테이킹 처리 중 오류가 발생했습니다');
+				}
+			} else {
+				// Xaman SDK가 없거나 다른 지갑 타입인 경우 (개발/테스트 모드)
+				setTxStatus('error');
+				setTxError('Xaman 지갑이 연결되어 있지 않습니다. Xaman 지갑을 통해 스테이킹해주세요.');
+				showToast('error', 'Xaman 지갑이 필요합니다');
+			}
 		} catch (error) {
 			console.error('스테이킹 오류:', error);
 			setTxStatus('error');
 			setTxError('스테이킹 요청 중 오류가 발생했습니다');
+			showToast('error', '스테이킹 처리 중 오류가 발생했습니다');
 		}
 	};
 
@@ -186,7 +213,7 @@ export default function StakePanel() {
 					<Info className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
 					<div className="text-xs text-gray-400">
 						<p className="mb-1">스테이킹한 XRP는 해당 기간 동안 락업됩니다.</p>
-						<p className="mb-1">최소 스테이킹 금액은 10 XRP입니다.</p>
+						<p className="mb-1">최소 스테이킹 금액은 1 XRP입니다.</p>
 						<p>보상은 매일 RLUSD 형태로 지급됩니다.</p>
 					</div>
 				</div>
@@ -226,7 +253,7 @@ export default function StakePanel() {
 								<Button variant="outline" className="flex-1" onClick={handleCloseStatusModal}>
 									취소
 								</Button>
-								<Button className="flex-1" onClick={() => setTxStatus('processing')}>
+								<Button className="flex-1" onClick={confirmStaking}>
 									확인
 								</Button>
 							</div>
@@ -248,8 +275,13 @@ export default function StakePanel() {
 							<div className="flex flex-col items-center space-y-3 py-4">
 								<CheckCircle className="h-10 w-10 text-neon-green" />
 								<p className="font-medium">스테이킹 성공!</p>
-								<p className="text-sm text-gray-400">{amount} XRP가 성공적으로 스테이킹되었습니다</p>
-								{txHash && <p className="text-xs font-mono bg-dark-background p-2 rounded-md">{txHash}</p>}
+								<p className="text-sm text-gray-400">{amount} XRP가 성공적으로 스테이킹 요청되었습니다</p>
+								{requestId && (
+									<div className="w-full">
+										<p className="text-xs text-gray-400 mb-1">요청 ID:</p>
+										<p className="text-xs font-mono bg-dark-background p-2 rounded-md overflow-x-auto">{requestId}</p>
+									</div>
+								)}
 							</div>
 							<Button className="w-full" onClick={handleCloseStatusModal}>
 								확인
