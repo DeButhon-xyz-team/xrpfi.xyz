@@ -9,7 +9,7 @@ interface PageWrapperProps {
 
 export default function PageWrapper({ title, children }: PageWrapperProps) {
 	return (
-		<main className="container mx-auto px-4 py-8">
+		<main className="max-w-[768px] mx-auto px-4 py-8">
 			<h1 className="text-3xl font-bold mb-6">{title}</h1>
 			{children}
 		</main>

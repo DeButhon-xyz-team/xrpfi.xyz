@@ -109,7 +109,7 @@ export default function GlobalHeader() {
 	return (
 		<>
 			<header className="sticky top-0 z-50 border-b border-dark-border py-4 bg-black backdrop-blur-sm bg-opacity-80">
-				<div className="container mx-auto px-4 flex justify-between items-center">
+				<div className="max-w-[768px] mx-auto px-4 flex justify-between items-center">
 					<Link
 						href="/"
 						className="text-2xl font-bold text-neon-blue hover:text-neon-purple transition-colors duration-150 cursor-pointer"
