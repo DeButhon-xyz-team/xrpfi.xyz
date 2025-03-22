@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Github, Twitter } from 'lucide-react';
+import { Github } from 'lucide-react';
 import IconButton from '../ui/IconButton';
 
 export default function GlobalFooter() {
@@ -12,7 +12,7 @@ export default function GlobalFooter() {
 			<div className="max-w-[768px] mx-auto px-4">
 				<div className="flex flex-col md:flex-row justify-between items-center">
 					<div className="mb-4 md:mb-0">
-						<Link href="/" className="cursor-pointer">
+						<Link href="/" className="cursor-pointer flex md:justify-start justify-center">
 							<Image
 								src="/images/logo.png"
 								alt="XRPFI 로고"

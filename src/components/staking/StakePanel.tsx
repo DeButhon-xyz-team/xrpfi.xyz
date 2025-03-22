@@ -134,7 +134,7 @@ export default function StakePanel() {
 
 	return (
 		<>
-			<Card className="max-w-md mx-auto">
+			<Card className="max-w-[768px] mx-auto">
 				<h2 className="text-xl font-semibold mb-4">스테이킹 입력</h2>
 
 				<div className="mb-4">

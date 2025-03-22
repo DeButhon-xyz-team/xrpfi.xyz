@@ -282,7 +282,7 @@ export default function WithdrawPanel() {
 
 	return (
 		<>
-			<Card className="max-w-md mx-auto">
+			<Card className="max-w-[768px] mx-auto">
 				<h2 className="text-xl font-semibold mb-4">스테이킹 해지</h2>
 
 				{!wallet.connected

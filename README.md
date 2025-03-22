@@ -56,24 +56,6 @@ http://localhost:3000 에서 애플리케이션을 확인할 수 있습니다.
 3. 다음 환경 변수를 추가합니다:
    - `NEXT_PUBLIC_XAMAN_API_KEY`: Xaman 개발자 포털에서 얻은 API 키
 
-### 클라이언트 사이드 전용 기능 처리
-
-이 프로젝트는 Next.js의 서버 컴포넌트와 클라이언트 컴포넌트를 모두 사용합니다. Xaman SDK와 같은 브라우저 전용 기능은 'use client' 지시문이 있는 컴포넌트에서만 사용됩니다. 서버 사이드 렌더링 중 오류를 방지하기 위해 다음과 같은 패턴을 사용합니다:
-
-```tsx
-// 클라이언트 사이드인지 확인
-const [isClient, setIsClient] = useState(false);
-
-useEffect(() => {
-	setIsClient(true);
-}, []);
-
-// 클라이언트 사이드에서만 실행
-if (isClient) {
-	// 브라우저 전용 코드
-}
-```
-
 ## 문제 해결
 
 ### Vercel 배포 시 500 오류

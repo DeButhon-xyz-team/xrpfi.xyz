@@ -9,7 +9,7 @@ const StakingSummary: React.FC = () => {
 
 	if (!wallet.connected) {
 		return (
-			<Card title="스테이킹 개요">
+			<Card title="스테이킹 개요" className="w-full">
 				<div className="text-center py-6">
 					<p className="text-gray-400">지갑을 연결하여 스테이킹 정보를 확인하세요.</p>
 				</div>
@@ -19,7 +19,7 @@ const StakingSummary: React.FC = () => {
 
 	if (isLoading) {
 		return (
-			<Card title="스테이킹 개요">
+			<Card title="스테이킹 개요" className="w-full">
 				<div className="flex justify-center items-center h-32">
 					<div className="loader w-8 h-8 border-4 border-t-neon-blue rounded-full animate-spin"></div>
 				</div>
@@ -28,7 +28,7 @@ const StakingSummary: React.FC = () => {
 	}
 
 	return (
-		<Card title="스테이킹 개요">
+		<Card title="스테이킹 개요" className="w-full">
 			<div className="space-y-4 p-2">
 				<div className="grid grid-cols-2 gap-4">
 					<div className="bg-black/20 rounded-lg p-4">

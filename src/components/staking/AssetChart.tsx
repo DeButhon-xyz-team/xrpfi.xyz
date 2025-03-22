@@ -23,7 +23,7 @@ const AssetChart: React.FC = () => {
 
 	if (!wallet.connected) {
 		return (
-			<Card title="자산 추이">
+			<Card title="자산 추이" className="w-full">
 				<div className="text-center py-6">
 					<p className="text-gray-400">지갑을 연결하여 자산 추이를 확인하세요.</p>
 				</div>
@@ -33,7 +33,7 @@ const AssetChart: React.FC = () => {
 
 	if (isLoading) {
 		return (
-			<Card title="자산 추이">
+			<Card title="자산 추이" className="w-full">
 				<div className="flex justify-center items-center h-48">
 					<div className="loader w-8 h-8 border-4 border-t-neon-blue rounded-full animate-spin"></div>
 				</div>
@@ -42,7 +42,7 @@ const AssetChart: React.FC = () => {
 	}
 
 	return (
-		<Card title="자산 추이">
+		<Card title="자산 추이" className="w-full">
 			<div className="p-2">
 				<div className="h-64 w-full">
 					{chartData.length > 0 ? (

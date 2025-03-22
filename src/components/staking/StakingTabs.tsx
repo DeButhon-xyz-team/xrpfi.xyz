@@ -13,7 +13,7 @@ export default function StakingTabs({ defaultTab = 'stake' }: StakingTabsProps) 
 	const [activeTab, setActiveTab] = useState<Tab>(defaultTab);
 
 	return (
-		<div className="w-full max-w-md mx-auto">
+		<div className="w-full max-w-[768px] mx-auto">
 			{/* 탭 메뉴 */}
 			<div className="flex mb-6 bg-dark-background/50 rounded-lg p-1">
 				<button
