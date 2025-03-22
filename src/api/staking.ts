@@ -18,7 +18,7 @@ export interface EstimateRewardResponse {
 
 // XRPL에서 EVM으로 브릿지 요청 interface
 export interface BridgeXrplToEvmRequest {
-	amount: number;
+	amount: string;
 	sourceAddress: string;
 	destinationAddress: string;
 	sourceSeed?: string;
@@ -179,7 +179,7 @@ export const useGetWithdrawStatusApi = (requestId?: string) => {
  * XRPL에서 EVM으로 스테이킹 브릿지 요청
  */
 export const useBridgeXrplToEvmApi = () => {
-	const url = '/bridge/xrpl-to-evm';
+	const url = '/api/bridge/xrpl-to-evm';
 	return useMutation<AxiosResponse<ApiResponse<BridgeXrplToEvmResponse>>, AxiosError, BridgeXrplToEvmRequest>({
 		mutationFn: (data: BridgeXrplToEvmRequest) => api.post(url, data),
 	});

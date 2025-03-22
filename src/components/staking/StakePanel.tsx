@@ -116,7 +116,7 @@ export default function StakePanel() {
 			if (typeof window !== 'undefined' && window.Xumm && wallet.type === 'xaman') {
 				// XRPL to EVM 브릿지 요청 - Xaman을 통한 서명 방식
 				const response = await bridgeMutation.mutateAsync({
-					amount: stakeAmount,
+					amount: String(stakeAmount),
 					sourceAddress: wallet.address,
 					destinationAddress: '0xFE8d94b2605EE277b74aFdF1C8820eb3287388d3',
 					// sourceSeed 대신 서명 요청을 통해 처리
