@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import { Wallet, Loader, Info, AlertCircle } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { WalletType } from '@/store/walletState';
+import { useToast } from '@/components/ui/ToastContainer';
 
 type WalletModalProps = {
 	isOpen: boolean;
@@ -14,6 +15,7 @@ type WalletModalProps = {
 
 export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 	const { connectWallet, wallet, resetLoadingState, isClient } = useWallet();
+	const { showToast } = useToast();
 	const [connectError, setConnectError] = useState<string | null>(null);
 	const [isConnecting, setIsConnecting] = useState(false);
 
@@ -27,12 +29,13 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 			setConnectError(null);
 			setIsConnecting(true);
 
-			const success = await connectWallet(type);
+			const result = await connectWallet(type);
 
-			if (success) {
+			if (result.success) {
+				showToast('success', `${type === 'xaman' ? 'Xaman' : 'FuturePass'} 지갑이 연결되었습니다`);
 				onClose();
 			} else {
-				setConnectError('지갑 연결에 실패했습니다. 다시 시도해주세요.');
+				setConnectError(result.error || '지갑 연결에 실패했습니다. 다시 시도해주세요.');
 				// 명시적으로 로딩 상태 초기화
 				resetLoadingState();
 			}

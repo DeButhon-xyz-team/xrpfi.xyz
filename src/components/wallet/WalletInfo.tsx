@@ -2,17 +2,20 @@
 
 import React, { useState } from 'react';
 import { useWallet } from '@/hooks/useWallet';
-import { ExternalLink, Copy, RefreshCw, AlertCircle, CircleDollarSign, Check } from 'lucide-react';
+import { ExternalLink, Copy, RefreshCw, AlertCircle, CircleDollarSign, Check, Loader2 } from 'lucide-react';
 import IconButton from '@/components/ui/IconButton';
 import Button from '@/components/ui/Button';
+import { useToast } from '@/components/ui/ToastContainer';
 
 export default function WalletInfo() {
 	const { wallet, refreshBalance, disconnectWallet, getAddressDisplay, requestTestnetXRP } = useWallet();
+	const { showToast } = useToast();
 	const addressDisplay = getAddressDisplay();
 	const [isRequestingXRP, setIsRequestingXRP] = useState(false);
-	const [requestSuccess, setRequestSuccess] = useState<boolean | null>(null);
+	const [requestError, setRequestError] = useState<string | null>(null);
 	const [isCopied, setIsCopied] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [isDisconnecting, setIsDisconnecting] = useState(false);
 
 	if (!wallet.connected || !wallet.address) {
 		return null;
@@ -25,14 +28,17 @@ export default function WalletInfo() {
 		try {
 			await navigator.clipboard.writeText(wallet.address);
 			setIsCopied(true);
+			showToast('success', '주소가 클립보드에 복사되었습니다');
 
-			// 2초 후 복사 상태 초기화
+			// 2초 후 상태 초기화
 			setTimeout(() => {
 				setIsCopied(false);
 			}, 2000);
 		} catch (error) {
-			console.error('주소 복사 실패:', error);
-			// 클립보드 API가 지원되지 않는 경우 대체 방법
+			console.error('클립보드 복사 실패:', error);
+			showToast('error', '주소 복사에 실패했습니다');
+
+			// fallback: 클립보드 API가 지원되지 않는 환경
 			const textArea = document.createElement('textarea');
 			textArea.value = wallet.address;
 			document.body.appendChild(textArea);
@@ -42,13 +48,14 @@ export default function WalletInfo() {
 			try {
 				document.execCommand('copy');
 				setIsCopied(true);
+				showToast('success', '주소가 클립보드에 복사되었습니다');
 
-				// 2초 후 복사 상태 초기화
 				setTimeout(() => {
 					setIsCopied(false);
 				}, 2000);
-			} catch (err) {
-				console.error('대체 복사 방법 실패:', err);
+			} catch (e) {
+				console.error('대체 복사 방법 실패:', e);
+				showToast('error', '주소 복사에 실패했습니다');
 			}
 
 			document.body.removeChild(textArea);
@@ -62,50 +69,72 @@ export default function WalletInfo() {
 
 	// 잔액 새로고침 함수
 	const handleRefreshBalance = async () => {
-		if (isRefreshing) return; // 중복 실행 방지
+		if (isRefreshing) return;
 
 		setIsRefreshing(true);
+
 		try {
 			await refreshBalance();
+			showToast('info', '잔액이 업데이트되었습니다');
 		} catch (error) {
 			console.error('잔액 새로고침 실패:', error);
+			showToast('error', '잔액 업데이트에 실패했습니다');
 		} finally {
-			// 새로고침 상태 1초 후 초기화 (UI 피드백 위해)
-			setTimeout(() => {
-				setIsRefreshing(false);
-			}, 1000);
+			setIsRefreshing(false);
 		}
 	};
 
 	// 테스트넷 XRP 요청 함수
 	const handleRequestTestnetXRP = async () => {
-		if (!wallet.address) return;
+		if (!requestTestnetXRP) return;
 
 		setIsRequestingXRP(true);
-		setRequestSuccess(null);
+		setRequestError(null);
 
 		try {
 			const success = await requestTestnetXRP();
-			setRequestSuccess(success);
 
 			if (success) {
-				// 2초 후 잔액 새로고침
+				showToast('success', '테스트넷 XRP를 요청했습니다. 잠시 후 잔액을 확인해 보세요.');
+
+				// 3초 후 잔액 새로고침
 				setTimeout(() => {
-					handleRefreshBalance();
-					setIsRequestingXRP(false);
-				}, 2000);
+					refreshBalance();
+				}, 3000);
 			} else {
-				setIsRequestingXRP(false);
+				setRequestError('테스트넷 XRP 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.');
 			}
 		} catch (error) {
-			console.error('테스트넷 XRP 요청 실패:', error);
-			setRequestSuccess(false);
+			console.error('테스트넷 XRP 요청 오류:', error);
+			setRequestError('테스트넷 XRP 요청 중 오류가 발생했습니다.');
+		} finally {
 			setIsRequestingXRP(false);
 		}
 	};
 
 	// 테스트넷 계정 활성화 필요 또는 잔액이 0인 경우
 	const needsTestnetXRP = wallet.balance === 0;
+
+	// 지갑 연결 해제 함수
+	const handleDisconnect = async () => {
+		if (isDisconnecting) return;
+
+		setIsDisconnecting(true);
+		try {
+			const result = await disconnectWallet();
+
+			if (result.success) {
+				showToast('info', '지갑 연결이 해제되었습니다');
+			} else if (result.error) {
+				showToast('error', result.error);
+			}
+		} catch (error) {
+			console.error('지갑 연결 해제 실패:', error);
+			showToast('error', '지갑 연결 해제 중 오류가 발생했습니다');
+		} finally {
+			setIsDisconnecting(false);
+		}
+	};
 
 	return (
 		<div className="p-3 bg-dark-card rounded-lg border border-dark-border">
@@ -146,41 +175,47 @@ export default function WalletInfo() {
 			</div>
 
 			{needsTestnetXRP && (
-				<div className="mt-3">
-					{requestSuccess === false && (
-						<div className="p-2 bg-red-950/40 rounded-md text-xs text-red-300 mb-2 flex items-center">
-							<AlertCircle className="w-3 h-3 mr-1" />
-							테스트넷 XRP 요청에 실패했습니다. 다시 시도해주세요.
+				<div className="flex flex-col space-y-2 mt-4">
+					{requestError && (
+						<div className="flex items-center text-red-500 text-sm mb-2">
+							<AlertCircle className="w-4 h-4 mr-1" />
+							<span>{requestError}</span>
 						</div>
 					)}
 
-					<Button onClick={handleRequestTestnetXRP} className="w-full text-xs" disabled={isRequestingXRP}>
+					<Button onClick={handleRequestTestnetXRP} disabled={isRequestingXRP} className="w-full" variant="secondary">
 						{isRequestingXRP ? (
 							<>
-								<RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 								요청 중...
 							</>
 						) : (
 							<>
-								<CircleDollarSign className="w-3 h-3 mr-1" />
+								<CircleDollarSign className="mr-2 h-4 w-4" />
 								테스트넷 XRP 요청하기
 							</>
 						)}
 					</Button>
 
-					<p className="mt-1 text-xs text-gray-400">
-						테스트넷에서 XRP를 받으려면 버튼을 클릭하세요. 새 창이 열리면 웹사이트에서 안내에 따라 XRP를 요청하세요.
+					<p className="text-xs text-muted-foreground mt-1">
+						테스트넷 XRP를 요청하면 새 창이 열립니다. 창에서 &quot;Create Account&quot; 버튼을 클릭하세요.
 					</p>
 				</div>
 			)}
 
 			<div className="mt-2 text-center">
-				<button
-					onClick={disconnectWallet}
-					className="text-xs text-gray-400 hover:text-neon-blue transition-colors duration-150"
-				>
-					연결 해제
-				</button>
+				{wallet.connected && (
+					<Button variant="outline" size="sm" onClick={handleDisconnect} disabled={isDisconnecting} className="mt-4">
+						{isDisconnecting ? (
+							<>
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								연결 해제 중...
+							</>
+						) : (
+							'지갑 연결 해제'
+						)}
+					</Button>
+				)}
 			</div>
 
 			{/* 복사 시 알림 - 화면에 시각적 피드백 제공 */}

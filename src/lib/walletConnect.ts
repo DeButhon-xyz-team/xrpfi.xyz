@@ -1,4 +1,5 @@
 import { Client } from 'xrpl';
+import * as xrpl from 'xrpl';
 
 // WalletConnect 설정
 export const WALLET_CONNECT_PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '';
@@ -22,56 +23,58 @@ export async function createXRPLClient() {
 }
 
 // 잔액 조회 함수
-export async function getXRPBalance(address: string): Promise<number> {
-	// 빈 주소인 경우 0 반환
+export const getXRPBalance = async (address: string): Promise<number> => {
+	// 주소가 비어있으면 0 반환
 	if (!address) return 0;
 
-	let client;
+	const client = new Client(XRPL_NODE);
+
 	try {
-		client = await createXRPLClient();
-		const { result } = await client.request({
+		await client.connect();
+
+		const response = await client.request({
 			command: 'account_info',
 			account: address,
 			ledger_index: 'validated',
 		});
 
 		// XRP 잔액을 숫자로 변환 (drops에서 XRP로 변환, 1 XRP = 1,000,000 drops)
-		return parseFloat(result.account_data.Balance) / 1000000;
+		const balanceInDrops = response.result.account_data.Balance;
+		return Number(balanceInDrops) / 1000000;
 	} catch (error: any) {
-		// 계정을 찾을 수 없는 경우 (테스트넷 활성화 필요)
-		if (error?.message?.includes('Account not found') || (error?.data && error?.data?.error === 'actNotFound')) {
-			console.warn('테스트넷 계정이 활성화되지 않았습니다:', address);
-			// 테스트넷 계정 활성화를 위한 Faucet 정보를 콘솔에 안내
-			console.info('테스트넷 XRP를 받으려면 https://testnet.xrpl.org/faucet에 방문하세요.');
+		if (
+			(error.message && error.message.includes('Account not found')) ||
+			(error.data && error.data.error === 'actNotFound')
+		) {
+			console.warn(`계정 ${address}가 테스트넷에 존재하지 않습니다. 테스트넷 XRP가 필요합니다.`);
 			return 0;
 		}
 
 		console.error('XRP 잔액 조회 실패:', error);
-		return 0;
+		throw error;
 	} finally {
-		if (client && client.isConnected()) {
-			await client.disconnect();
-		}
+		client.disconnect();
 	}
-}
+};
 
 // 테스트넷 계정 활성화 함수
-export async function activateTestnetAccount(address: string): Promise<boolean> {
-	if (!address) return false;
-
+export const activateTestnetAccount = (address: string): Promise<boolean> => {
 	try {
-		// 브라우저 환경에서만 작동
-		if (typeof window !== 'undefined') {
-			// 사용자에게 테스트넷 Faucet 링크 제공
-			window.open(`https://testnet.xrpl.org/faucet?to=${address}`, '_blank');
-			return true;
-		}
-		return false;
+		// 테스트넷 활성화용 XRP 요청 페이지 열기
+		const testnetFaucetUrl = `https://testnet.xrpl.org/faucet/${address}`;
+		window.open(testnetFaucetUrl, '_blank', 'noopener,noreferrer');
+
+		// 안내 메시지 표시
+		alert(
+			`테스트넷 XRP 요청을 위해 새 창이 열렸습니다.\n\n1. "Create Account" 버튼을 클릭하세요.\n2. 테스트넷 XRP가 계정으로 전송될 때까지 기다리세요.\n3. 완료 후 이 페이지로 돌아와 잔액을 새로고침하세요.`
+		);
+
+		return Promise.resolve(true);
 	} catch (error) {
-		console.error('테스트넷 계정 활성화 요청 실패:', error);
-		return false;
+		console.error('테스트넷 계정 활성화 오류:', error);
+		return Promise.resolve(false);
 	}
-}
+};
 
 // Xaman(XUMM) 연결 정보
 export const xamanConfig = {

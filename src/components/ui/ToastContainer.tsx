@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import Toast, { ToastType } from './Toast';
 

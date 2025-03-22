@@ -28,6 +28,40 @@ export function useWallet() {
 		initializeSdk();
 	}, [isClient]);
 
+	// 페이지 로드 시 저장된 지갑 상태에서 잔액 새로고침
+	useEffect(() => {
+		// 브라우저 환경이 아니거나 지갑이 연결되지 않은 경우 건너뜀
+		if (!isClient || !wallet.connected || !wallet.address) return;
+
+		// 지갑이 연결된 상태라면 잔액 새로고침
+		const refreshSavedWallet = async () => {
+			try {
+				// 로딩 상태는 저장하지 않으므로 항상 false로 초기화
+				setWallet({ loading: false });
+
+				// 잔액 새로고침
+				let balance: number;
+
+				if (wallet.type === 'xaman') {
+					balance = await XamanConnector.getBalance(wallet.address!);
+				} else if (wallet.type === 'futurepass') {
+					balance = await FuturePassConnector.getBalance(wallet.address!);
+				} else {
+					// 알 수 없는 지갑 유형
+					return;
+				}
+
+				// 잔액 업데이트
+				setWallet({ balance });
+			} catch (error) {
+				console.error('저장된 지갑 잔액 새로고침 실패:', error);
+				// 오류가 발생해도 연결 상태는 유지 (사용자가 수동으로 새로고침 가능)
+			}
+		};
+
+		refreshSavedWallet();
+	}, [isClient, wallet.connected, wallet.address, wallet.type, setWallet]);
+
 	// 로딩 상태만 리셋하는 함수
 	const resetLoadingState = useCallback(() => {
 		setWallet({ loading: false });
@@ -36,7 +70,7 @@ export function useWallet() {
 	// 지갑 연결 함수
 	const connectWallet = useCallback(
 		async (type: WalletType) => {
-			if (!isClient || !type) return false;
+			if (!isClient || !type) return { success: false, error: '클라이언트 환경이 아닙니다.' };
 
 			try {
 				// 로딩 상태 시작
@@ -73,14 +107,17 @@ export function useWallet() {
 					loading: false,
 				});
 
-				return true;
+				return { success: true, walletType: type };
 			} catch (error) {
 				console.error('지갑 연결 오류:', error);
 
 				// 실패 시 상태 초기화 - 명시적으로 loading: false 설정
 				setWallet({ loading: false, type: null });
 
-				return false;
+				return {
+					success: false,
+					error: error instanceof Error ? error.message : '지갑 연결에 실패했습니다.',
+				};
 			}
 		},
 		[isClient, setWallet]
@@ -88,7 +125,7 @@ export function useWallet() {
 
 	// 지갑 연결 해제 함수
 	const disconnectWallet = useCallback(async () => {
-		if (!isClient) return false;
+		if (!isClient) return { success: false, error: '클라이언트 환경이 아닙니다.' };
 
 		try {
 			if (wallet.type === 'xaman') {
@@ -100,12 +137,15 @@ export function useWallet() {
 			// 상태 초기화
 			resetWallet();
 
-			return true;
+			return { success: true };
 		} catch (error) {
 			console.error('지갑 연결 해제 오류:', error);
 			// 실패해도 상태는 초기화
 			resetWallet();
-			return false;
+			return {
+				success: true,
+				warning: '연결 해제 과정에 일부 오류가 있었지만, 연결은 해제되었습니다.',
+			};
 		}
 	}, [isClient, wallet.type, resetWallet]);
 
