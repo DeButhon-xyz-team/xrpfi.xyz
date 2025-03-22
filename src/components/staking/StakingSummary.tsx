@@ -2,6 +2,7 @@ import React from 'react';
 import { useStakingStore } from '@/store/stakingState';
 import { useWalletStore } from '@/store/walletState';
 import Card from '@/components/ui/Card';
+import Link from 'next/link';
 
 const StakingSummary: React.FC = () => {
 	const { stakingInfo, isLoading } = useStakingStore();
@@ -61,9 +62,12 @@ const StakingSummary: React.FC = () => {
 				</div>
 
 				<div className="text-right">
-					<a href="/stake" className="text-sm text-neon-blue hover:text-neon-purple transition-colors duration-150">
+					<Link
+						href="/staking"
+						className="text-sm text-neon-blue hover:text-neon-purple transition-colors duration-150"
+					>
 						스테이킹 하기 &rarr;
-					</a>
+					</Link>
 				</div>
 			</div>
 		</Card>
