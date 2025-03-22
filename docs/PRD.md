@@ -110,10 +110,10 @@ type StakingInfo = {
 
 ### 🟣 1단계: 프로젝트 셋업
 
-- [ ] Next.js + TypeScript 초기 프로젝트 생성
-- [ ] Tailwind CSS 4 설치 및 다크 테마 적용
-- [ ] lucide-react, shadcn/ui 설치 및 테스트 컴포넌트 구성
-- [ ] 기본 라우팅 구조 `/`, `/stake`, `/withdraw` 설정
+- [x] Next.js + TypeScript 초기 프로젝트 생성
+- [x] Tailwind CSS 4 설치 및 다크 테마 적용
+- [x] lucide-react, shadcn/ui 설치 및 테스트 컴포넌트 구성
+- [x] 기본 라우팅 구조 `/`, `/stake`, `/withdraw` 설정
 
 ---
 
@@ -129,7 +129,7 @@ type StakingInfo = {
 
 - [ ] Xaman WalletConnect 연동 (연결/해제 상태 관리)
 - [ ] FuturePass 최소 연결 구조 설계 및 UI 반영
-- [ ] Zustand로 전역 지갑 상태 저장
+- [ ] Recoil로 전역 지갑 상태 저장
 - [ ] 지갑 주소, 잔액 UI 구성
 
 ---
