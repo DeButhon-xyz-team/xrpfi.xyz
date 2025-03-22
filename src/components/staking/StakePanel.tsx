@@ -7,7 +7,7 @@ import { useToast } from '@/components/ui/ToastContainer';
 import Modal from '@/components/ui/Modal';
 
 // APR 연간 수익률 (관리자가 설정 가능한 값)
-const APR = 6.5; // 6.5%
+const APR = 5; // 5%
 
 type TransactionStatus = 'idle' | 'confirming' | 'processing' | 'success' | 'error';
 

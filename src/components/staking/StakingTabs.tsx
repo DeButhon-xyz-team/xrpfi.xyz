@@ -17,7 +17,7 @@ export default function StakingTabs({ defaultTab = 'stake' }: StakingTabsProps) 
 			{/* 탭 메뉴 */}
 			<div className="flex mb-6 bg-dark-background/50 rounded-lg p-1">
 				<button
-					className={`flex items-center justify-center w-1/2 py-2 rounded-md transition-all duration-200 ${
+					className={`flex items-center justify-center w-1/2 py-2 rounded-md transition-all cursor-pointer duration-200 ${
 						activeTab === 'stake' ? 'bg-neon-purple text-white' : 'text-gray-400 hover:text-gray-200'
 					}`}
 					onClick={() => setActiveTab('stake')}
@@ -26,7 +26,7 @@ export default function StakingTabs({ defaultTab = 'stake' }: StakingTabsProps) 
 					<span>스테이킹</span>
 				</button>
 				<button
-					className={`flex items-center justify-center w-1/2 py-2 rounded-md transition-all duration-200 ${
+					className={`flex items-center justify-center w-1/2 py-2 rounded-md transition-all cursor-pointer duration-200 ${
 						activeTab === 'withdraw' ? 'bg-neon-purple text-white' : 'text-gray-400 hover:text-gray-200'
 					}`}
 					onClick={() => setActiveTab('withdraw')}
