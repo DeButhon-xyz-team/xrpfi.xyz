@@ -17,13 +17,15 @@ export default function GlobalFooter() {
 						>
 							XRPFI
 						</Link>
-						<p className="text-sm text-gray-400 mt-2">XRPL 사용자를 위한 멀티체인 스테이킹 수익 미러링 플랫폼</p>
+						<p className="text-sm text-gray-400 mt-2">XRPL 사용자를 위한 멀티체인 스테이킹 플랫폼</p>
 					</div>
 
 					<div className="flex flex-col items-center md:items-end">
 						<div className="flex space-x-3 mb-3">
-							<IconButton icon={Github} variant="outline" size="sm" />
-							<IconButton icon={Twitter} variant="outline" size="sm" />
+							<Link className="flex items-center gap-2" href="https://github.com/xrpfi" target="_blank">
+								<IconButton icon={Github} variant="outline" size="sm" />
+								<span className="text-sm text-gray-400">https://github.com/DeButhon-xyz-team</span>
+							</Link>
 						</div>
 						<p className="text-sm text-gray-400">© 2024 XRPFI. All rights reserved.</p>
 					</div>
