@@ -26,21 +26,50 @@ export async function getXRPBalance(address: string): Promise<number> {
 	// 빈 주소인 경우 0 반환
 	if (!address) return 0;
 
+	let client;
 	try {
-		const client = await createXRPLClient();
+		client = await createXRPLClient();
 		const { result } = await client.request({
 			command: 'account_info',
 			account: address,
 			ledger_index: 'validated',
 		});
 
-		await client.disconnect();
-
 		// XRP 잔액을 숫자로 변환 (drops에서 XRP로 변환, 1 XRP = 1,000,000 drops)
 		return parseFloat(result.account_data.Balance) / 1000000;
-	} catch (error) {
+	} catch (error: any) {
+		// 계정을 찾을 수 없는 경우 (테스트넷 활성화 필요)
+		if (error?.message?.includes('Account not found') || (error?.data && error?.data?.error === 'actNotFound')) {
+			console.warn('테스트넷 계정이 활성화되지 않았습니다:', address);
+			// 테스트넷 계정 활성화를 위한 Faucet 정보를 콘솔에 안내
+			console.info('테스트넷 XRP를 받으려면 https://testnet.xrpl.org/faucet에 방문하세요.');
+			return 0;
+		}
+
 		console.error('XRP 잔액 조회 실패:', error);
 		return 0;
+	} finally {
+		if (client && client.isConnected()) {
+			await client.disconnect();
+		}
+	}
+}
+
+// 테스트넷 계정 활성화 함수
+export async function activateTestnetAccount(address: string): Promise<boolean> {
+	if (!address) return false;
+
+	try {
+		// 브라우저 환경에서만 작동
+		if (typeof window !== 'undefined') {
+			// 사용자에게 테스트넷 Faucet 링크 제공
+			window.open(`https://testnet.xrpl.org/faucet?to=${address}`, '_blank');
+			return true;
+		}
+		return false;
+	} catch (error) {
+		console.error('테스트넷 계정 활성화 요청 실패:', error);
+		return false;
 	}
 }
 
@@ -63,6 +92,7 @@ export interface WalletConnector {
 	connect: () => Promise<{ address: string; type: 'xaman' | 'futurepass' }>;
 	disconnect: () => Promise<void>;
 	getBalance: (address: string) => Promise<number>;
+	requestTestnetXRP?: (address: string) => Promise<boolean>;
 }
 
 // 클라이언트 사이드 전용 변수들
@@ -195,6 +225,11 @@ export const XamanConnector: WalletConnector = {
 
 	getBalance: async (address: string) => {
 		return getXRPBalance(address);
+	},
+
+	// 테스트넷 XRP 요청 함수 추가
+	requestTestnetXRP: async (address: string) => {
+		return activateTestnetAccount(address);
 	},
 };
 

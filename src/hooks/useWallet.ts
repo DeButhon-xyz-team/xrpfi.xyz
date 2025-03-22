@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useWalletStore, WalletType } from '@/store/walletState';
-import { XamanConnector, FuturePassConnector, initXamanSDK } from '@/lib/walletConnect';
+import { XamanConnector, FuturePassConnector, initXamanSDK, activateTestnetAccount } from '@/lib/walletConnect';
 
 export function useWallet() {
 	const { wallet, setWallet, resetWallet, getDisplayAddress } = useWalletStore();
@@ -134,12 +134,33 @@ export function useWallet() {
 		}
 	}, [isClient, wallet.connected, wallet.address, wallet.type, setWallet]);
 
+	// 테스트넷 XRP 요청 함수
+	const requestTestnetXRP = useCallback(async () => {
+		if (!isClient || !wallet.connected || !wallet.address) return false;
+
+		try {
+			// 지갑 유형에 따라 적절한 함수 호출
+			if (wallet.type === 'xaman' && XamanConnector.requestTestnetXRP) {
+				return await XamanConnector.requestTestnetXRP(wallet.address);
+			} else if (wallet.type === 'futurepass' && FuturePassConnector.requestTestnetXRP) {
+				return await FuturePassConnector.requestTestnetXRP(wallet.address);
+			} else {
+				// 기본 테스트넷 활성화 함수 사용
+				return await activateTestnetAccount(wallet.address);
+			}
+		} catch (error) {
+			console.error('테스트넷 XRP 요청 오류:', error);
+			return false;
+		}
+	}, [isClient, wallet.connected, wallet.address, wallet.type]);
+
 	return {
 		wallet,
 		connectWallet,
 		disconnectWallet,
 		refreshBalance,
 		resetLoadingState,
+		requestTestnetXRP,
 		getAddressDisplay: getDisplayAddress,
 		isClient,
 	};

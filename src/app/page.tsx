@@ -15,21 +15,16 @@ export default function Home() {
 		<PageWrapper title="XRPFI 대시보드">
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				<StakingSummary />
-				<AssetChart />
-				<Card title={wallet.connected ? '지갑 정보' : '빠른 링크'}>
+				<Card title="지갑 정보">
 					{wallet.connected ? (
 						<WalletInfo />
 					) : (
-						<div className="flex flex-col space-y-2">
-							<a href="/stake" className="text-neon-blue hover:text-neon-purple transition-colors duration-150">
-								스테이킹 하기
-							</a>
-							<a href="/withdraw" className="text-neon-blue hover:text-neon-purple transition-colors duration-150">
-								스테이킹 해지하기
-							</a>
+						<div className="text-center py-6">
+							<p className="text-gray-400">지갑을 연결하여 지갑 정보를 확인하세요.</p>
 						</div>
 					)}
 				</Card>
+				<AssetChart />
 			</div>
 		</PageWrapper>
 	);
