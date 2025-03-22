@@ -12,7 +12,7 @@ export default function GlobalFooter() {
 			<div className="max-w-[768px] mx-auto px-4">
 				<div className="flex flex-col md:flex-row justify-between items-center">
 					<div className="mb-4 md:mb-0">
-						<Link href="/" className="cursor-pointer flex md:justify-start justify-center">
+						<Link href="/" className="cursor-pointer flex justify-center w-fit mx-auto md:mx-0">
 							<Image
 								src="/images/logo.png"
 								alt="XRPFI 로고"
