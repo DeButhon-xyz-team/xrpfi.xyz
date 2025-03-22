@@ -12,7 +12,7 @@ export default function Home() {
 	const { wallet } = useWallet();
 
 	return (
-		<PageWrapper title="XRPFI 대시보드">
+		<PageWrapper title="Dashboard">
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				<StakingSummary />
 				<Card title="지갑 정보">
