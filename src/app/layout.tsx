@@ -15,7 +15,7 @@ export const metadata = {
 		siteName: 'XRPFI',
 		images: [
 			{
-				url: '/images/opengraph.png',
+				url: '/opengraph.png',
 			},
 		],
 	},
