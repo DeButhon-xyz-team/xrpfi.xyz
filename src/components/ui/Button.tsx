@@ -20,7 +20,8 @@ export const Button = ({
 	disabled = false,
 	...props
 }: ButtonProps) => {
-	const baseStyles = 'rounded-md font-medium transition-all duration-200 inline-flex items-center justify-center';
+	const baseStyles =
+		'rounded-md font-medium transition-all duration-200 inline-flex items-center justify-center cursor-pointer';
 
 	const variantStyles = {
 		primary: 'bg-neon-purple hover:bg-neon-purple/80 text-black',

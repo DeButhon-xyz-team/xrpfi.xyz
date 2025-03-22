@@ -59,7 +59,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
 
 	return (
 		<div
-			className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-200 ${
+			className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-200 px-4 ${
 				isOpen ? 'opacity-100' : 'opacity-0'
 			}`}
 			onClick={handleOverlayClick}

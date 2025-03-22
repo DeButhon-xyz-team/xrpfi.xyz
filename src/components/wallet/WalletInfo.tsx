@@ -8,14 +8,13 @@ import Button from '@/components/ui/Button';
 import { useToast } from '@/components/ui/ToastContainer';
 
 export default function WalletInfo() {
-	const { wallet, refreshBalance, disconnectWallet, getAddressDisplay, requestTestnetXRP } = useWallet();
+	const { wallet, refreshBalance, getAddressDisplay, requestTestnetXRP } = useWallet();
 	const { showToast } = useToast();
 	const addressDisplay = getAddressDisplay();
 	const [isRequestingXRP, setIsRequestingXRP] = useState(false);
 	const [requestError, setRequestError] = useState<string | null>(null);
 	const [isCopied, setIsCopied] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const [isDisconnecting, setIsDisconnecting] = useState(false);
 
 	if (!wallet.connected || !wallet.address) {
 		return null;
@@ -115,27 +114,6 @@ export default function WalletInfo() {
 	// 테스트넷 계정 활성화 필요 또는 잔액이 0인 경우
 	const needsTestnetXRP = wallet.balance === 0;
 
-	// 지갑 연결 해제 함수
-	const handleDisconnect = async () => {
-		if (isDisconnecting) return;
-
-		setIsDisconnecting(true);
-		try {
-			const result = await disconnectWallet();
-
-			if (result.success) {
-				showToast('info', '지갑 연결이 해제되었습니다');
-			} else if (result.error) {
-				showToast('error', result.error);
-			}
-		} catch (error) {
-			console.error('지갑 연결 해제 실패:', error);
-			showToast('error', '지갑 연결 해제 중 오류가 발생했습니다');
-		} finally {
-			setIsDisconnecting(false);
-		}
-	};
-
 	return (
 		<div className="p-3 bg-dark-card rounded-lg border border-dark-border">
 			<div className="flex items-center justify-between mb-2">
@@ -149,9 +127,15 @@ export default function WalletInfo() {
 						size="sm"
 						variant="outline"
 						onClick={copyAddress}
-						className={isCopied ? 'text-green-500 border-green-500' : ''}
+						className={`cursor-pointer ${isCopied ? 'text-green-500 border-green-500' : ''}`}
 					/>
-					<IconButton icon={ExternalLink} size="sm" variant="outline" onClick={viewOnExplorer} />
+					<IconButton
+						icon={ExternalLink}
+						size="sm"
+						variant="outline"
+						onClick={viewOnExplorer}
+						className="cursor-pointer"
+					/>
 				</div>
 			</div>
 
@@ -169,7 +153,7 @@ export default function WalletInfo() {
 						variant="outline"
 						onClick={handleRefreshBalance}
 						disabled={isRefreshing}
-						className={isRefreshing ? 'animate-spin' : ''}
+						className={`cursor-pointer ${isRefreshing ? 'animate-spin' : ''}`}
 					/>
 				</div>
 			</div>
@@ -183,7 +167,12 @@ export default function WalletInfo() {
 						</div>
 					)}
 
-					<Button onClick={handleRequestTestnetXRP} disabled={isRequestingXRP} className="w-full" variant="secondary">
+					<Button
+						onClick={handleRequestTestnetXRP}
+						disabled={isRequestingXRP}
+						className="w-full cursor-pointer"
+						variant="secondary"
+					>
 						{isRequestingXRP ? (
 							<>
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -202,21 +191,6 @@ export default function WalletInfo() {
 					</p>
 				</div>
 			)}
-
-			<div className="mt-2 text-center">
-				{wallet.connected && (
-					<Button variant="outline" size="sm" onClick={handleDisconnect} disabled={isDisconnecting} className="mt-4">
-						{isDisconnecting ? (
-							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								연결 해제 중...
-							</>
-						) : (
-							'지갑 연결 해제'
-						)}
-					</Button>
-				)}
-			</div>
 
 			{/* 복사 시 알림 - 화면에 시각적 피드백 제공 */}
 			{isCopied && (

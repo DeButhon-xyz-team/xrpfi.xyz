@@ -62,7 +62,7 @@ const StakingSummary: React.FC = () => {
 
 				<div className="text-right">
 					<a href="/stake" className="text-sm text-neon-blue hover:text-neon-purple transition-colors duration-150">
-						추가 스테이킹 &rarr;
+						스테이킹 하기 &rarr;
 					</a>
 				</div>
 			</div>

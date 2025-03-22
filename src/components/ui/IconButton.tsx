@@ -20,7 +20,7 @@ export const IconButton = ({
 	className = '',
 	disabled = false,
 }: IconButtonProps) => {
-	const baseStyles = 'rounded-full flex items-center justify-center transition-all duration-200';
+	const baseStyles = 'rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer';
 
 	const variantStyles = {
 		primary: 'bg-neon-purple hover:bg-neon-purple/80 text-black',

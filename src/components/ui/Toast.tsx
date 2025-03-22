@@ -39,27 +39,27 @@ export default function Toast({ type, message, duration = 3000, onClose, isVisib
 	const toastConfig = {
 		success: {
 			icon: CheckCircle,
-			bgColor: 'bg-green-500/10',
+			bgColor: 'bg-green-800/70',
 			borderColor: 'border-green-500',
-			textColor: 'text-green-400',
+			textColor: 'text-green-300',
 		},
 		error: {
 			icon: XCircle,
-			bgColor: 'bg-red-500/10',
+			bgColor: 'bg-red-800/70',
 			borderColor: 'border-red-500',
-			textColor: 'text-red-400',
+			textColor: 'text-red-300',
 		},
 		warning: {
 			icon: AlertCircle,
-			bgColor: 'bg-yellow-500/10',
+			bgColor: 'bg-yellow-800/70',
 			borderColor: 'border-yellow-500',
-			textColor: 'text-yellow-400',
+			textColor: 'text-yellow-300',
 		},
 		info: {
 			icon: Info,
-			bgColor: 'bg-blue-500/10',
+			bgColor: 'bg-blue-800/70',
 			borderColor: 'border-blue-500',
-			textColor: 'text-blue-400',
+			textColor: 'text-blue-300',
 		},
 	};
 
@@ -67,13 +67,13 @@ export default function Toast({ type, message, duration = 3000, onClose, isVisib
 
 	return (
 		<div
-			className={`fixed bottom-4 right-4 z-50 flex items-center max-w-md p-3 ${bgColor} border ${borderColor} rounded-lg shadow-lg transition-all duration-200 ${
+			className={`flex items-center max-w-md p-3 ${bgColor} border ${borderColor} rounded-lg shadow-xl transition-all duration-200 ${
 				isVisible && !isClosing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
 			}`}
 		>
 			<Icon className={`mr-2 ${textColor}`} size={18} />
-			<span className="flex-1 mr-2">{message}</span>
-			<IconButton icon={X} variant="outline" size="sm" onClick={handleClose} className="hover:bg-dark-border/20" />
+			<span className="flex-1 mr-2 text-white font-medium">{message}</span>
+			<IconButton icon={X} variant="outline" size="sm" onClick={handleClose} className="text-white hover:bg-white/10" />
 		</div>
 	);
 }
