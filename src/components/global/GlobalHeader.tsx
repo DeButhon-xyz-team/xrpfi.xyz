@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { Wallet, Loader, LogOut, RefreshCw } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import WalletModal from '@/components/wallet/WalletModal';
 import { useToast } from '@/components/ui/ToastContainer';
+import { usePathname } from 'next/navigation';
 
 export default function GlobalHeader() {
 	const { wallet, getAddressDisplay, disconnectWallet, refreshBalance, resetLoadingState, isClient } = useWallet();
@@ -15,6 +17,7 @@ export default function GlobalHeader() {
 	const [localLoading, setLocalLoading] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
+	const pathname = usePathname();
 
 	// 서버 렌더링 중에는 빈 주소를 사용
 	const addressDisplay = isClient ? getAddressDisplay() : '';
@@ -110,26 +113,34 @@ export default function GlobalHeader() {
 		<>
 			<header className="sticky top-0 z-50 border-b border-dark-border py-4 bg-black backdrop-blur-sm bg-opacity-80">
 				<div className="max-w-[768px] mx-auto px-4 flex justify-between items-center">
-					<Link
-						href="/"
-						className="text-2xl font-bold text-neon-blue hover:text-neon-purple transition-colors duration-150 cursor-pointer"
-					>
-						XRPFI
-					</Link>
-					<nav>
-						<ul className="flex space-x-4">
-							<li>
-								<Link href="/" className="hover:text-neon-purple transition-colors duration-150 cursor-pointer">
-									홈
-								</Link>
-							</li>
-							<li>
-								<Link href="/staking" className="hover:text-neon-purple transition-colors duration-150 cursor-pointer">
-									스테이킹
-								</Link>
-							</li>
-						</ul>
-					</nav>
+					<div className="flex items-center">
+						<Link href="/" className="cursor-pointer mr-6">
+							<Image
+								src="/images/logo.png"
+								alt="XRPFI 로고"
+								width={120}
+								height={40}
+								className="hover:opacity-90 transition-opacity duration-150"
+							/>
+						</Link>
+						<nav>
+							<ul className="flex space-x-4">
+								<li>
+									<Link
+										href="/staking"
+										className={`font-semibold transition-all duration-150 cursor-pointer relative
+											${
+												pathname === '/staking'
+													? 'after:content-[""] after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-0.5 after:bg-[currentColor] after:rounded-full'
+													: 'after:content-[""] after:absolute after:left-0 after:right-full after:-bottom-1 after:h-0.5 after:bg-[currentColor] after:rounded-full after:transition-all after:duration-200 after:ease-out hover:after:right-0'
+											}`}
+									>
+										스테이킹
+									</Link>
+								</li>
+							</ul>
+						</nav>
+					</div>
 					{isClient && (
 						<div className="flex items-center space-x-3">
 							{wallet.connected ? (
