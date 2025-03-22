@@ -1,14 +1,37 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useWalletStore, WalletType } from '@/store/walletState';
-import { XamanConnector, FuturePassConnector } from '@/lib/walletConnect';
+import { XamanConnector, FuturePassConnector, initXamanSDK } from '@/lib/walletConnect';
 
 export function useWallet() {
 	const { wallet, setWallet, resetWallet, getDisplayAddress } = useWalletStore();
+	const [isClient, setIsClient] = useState(false);
+
+	// 클라이언트 사이드 렌더링 확인
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
+
+	// Xaman SDK 초기화
+	useEffect(() => {
+		// 브라우저 환경에서만 실행
+		if (!isClient) return;
+
+		const initializeSdk = async () => {
+			try {
+				await initXamanSDK();
+				console.log('Xaman SDK initialized');
+			} catch (error) {
+				console.error('Xaman SDK initialization error:', error);
+			}
+		};
+
+		initializeSdk();
+	}, [isClient]);
 
 	// 지갑 연결 함수
 	const connectWallet = useCallback(
 		async (type: WalletType) => {
-			if (!type) return;
+			if (!isClient || !type) return false;
 
 			try {
 				// 로딩 상태 시작
@@ -49,11 +72,13 @@ export function useWallet() {
 				return false;
 			}
 		},
-		[setWallet, resetWallet]
+		[isClient, setWallet, resetWallet]
 	);
 
 	// 지갑 연결 해제 함수
 	const disconnectWallet = useCallback(async () => {
+		if (!isClient) return false;
+
 		try {
 			if (wallet.type === 'xaman') {
 				await XamanConnector.disconnect();
@@ -69,11 +94,11 @@ export function useWallet() {
 			console.error('지갑 연결 해제 오류:', error);
 			return false;
 		}
-	}, [wallet.type, resetWallet]);
+	}, [isClient, wallet.type, resetWallet]);
 
 	// 잔액 새로고침 함수
 	const refreshBalance = useCallback(async () => {
-		if (!wallet.connected || !wallet.address) return;
+		if (!isClient || !wallet.connected || !wallet.address) return;
 
 		try {
 			let balance: number;
@@ -90,7 +115,7 @@ export function useWallet() {
 		} catch (error) {
 			console.error('잔액 새로고침 오류:', error);
 		}
-	}, [wallet.connected, wallet.address, wallet.type, setWallet]);
+	}, [isClient, wallet.connected, wallet.address, wallet.type, setWallet]);
 
 	return {
 		wallet,
@@ -98,5 +123,6 @@ export function useWallet() {
 		disconnectWallet,
 		refreshBalance,
 		getAddressDisplay: getDisplayAddress,
+		isClient,
 	};
 }

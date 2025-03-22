@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# XRPFI - XRPL 스테이킹 플랫폼
 
-## Getting Started
+XRPL 사용자를 위한 멀티체인 스테이킹 수익 미러링 플랫폼
 
-First, run the development server:
+## 프로젝트 설명
+
+XRP를 예치하면 Axelar를 통해 PoS 체인으로 자산이 브릿징되고, 스테이킹 수익이 XRPL 상에서 RLUSD 등으로 지급되는 Web3 서비스입니다.
+
+## 기술 스택
+
+- **Frontend**: Next.js, TypeScript, Tailwind CSS v4
+- **UI 라이브러리**: shadcn/ui, lucide-react
+- **지갑 연동**: xrpl.js, Xaman SDK
+- **상태 관리**: Zustand
+- **데이터 통신**: TanStack Query
+
+## 시작하기
+
+### 필수 조건
+
+- Node.js 18.x 이상
+- npm 또는 yarn
+
+### 설치
+
+```bash
+# 의존성 설치
+npm install
+```
+
+### 환경 변수 설정
+
+프로젝트 루트에 `.env.local` 파일을 생성하고 다음 내용을 추가하세요:
+
+```
+# Xaman API 키 (필수)
+NEXT_PUBLIC_XAMAN_API_KEY=your-api-key-here
+```
+
+Xaman API 키는 [Xaman 개발자 포털](https://apps.xumm.dev/)에서 얻을 수 있습니다.
+
+### 개발 서버 실행
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 에서 애플리케이션을 확인할 수 있습니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Vercel 배포 설정
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 환경 변수 설정
 
-## Learn More
+1. Vercel 프로젝트 대시보드에 로그인합니다
+2. 프로젝트 설정 -> 환경 변수로 이동합니다
+3. 다음 환경 변수를 추가합니다:
+   - `NEXT_PUBLIC_XAMAN_API_KEY`: Xaman 개발자 포털에서 얻은 API 키
 
-To learn more about Next.js, take a look at the following resources:
+### 클라이언트 사이드 전용 기능 처리
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+이 프로젝트는 Next.js의 서버 컴포넌트와 클라이언트 컴포넌트를 모두 사용합니다. Xaman SDK와 같은 브라우저 전용 기능은 'use client' 지시문이 있는 컴포넌트에서만 사용됩니다. 서버 사이드 렌더링 중 오류를 방지하기 위해 다음과 같은 패턴을 사용합니다:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```tsx
+// 클라이언트 사이드인지 확인
+const [isClient, setIsClient] = useState(false);
 
-## Deploy on Vercel
+useEffect(() => {
+	setIsClient(true);
+}, []);
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+// 클라이언트 사이드에서만 실행
+if (isClient) {
+	// 브라우저 전용 코드
+}
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 문제 해결
+
+### Vercel 배포 시 500 오류
+
+- 환경 변수 `NEXT_PUBLIC_XAMAN_API_KEY`가 설정되었는지 확인하세요
+- 빌드 로그에서 오류 메시지를 확인하세요
+- 서버 사이드 렌더링 환경에서 브라우저 전용 API 사용 여부를 확인하세요

@@ -29,19 +29,19 @@
 
 ## 🔧 기술 스택
 
-| 항목              | 사용 기술                                      |
-| ----------------- | ---------------------------------------------- |
-| **Frontend**      | Next.js, TypeScript, Tailwind CSS v4           |
-| **UI 라이브러리** | shadcn/ui, lucide-react                        |
-| **지갑 연동**     | xrpl.js, WalletConnect (Xaman), FuturePass API |
-| **상태 관리**     | Zustand                                        |
-| **데이터 통신**   | TanStack Query (@tanstack/react-query)         |
-| **차트 시각화**   | Recharts                                       |
+| 항목              | 사용 기술                                 |
+| ----------------- | ----------------------------------------- |
+| **Frontend**      | Next.js, TypeScript, Tailwind CSS v4      |
+| **UI 라이브러리** | shadcn/ui, lucide-react                   |
+| **지갑 연동**     | xrpl.js, Xaman SDK, FuturePass API (예정) |
+| **상태 관리**     | Zustand                                   |
+| **데이터 통신**   | TanStack Query (@tanstack/react-query)    |
+| **차트 시각화**   | Recharts                                  |
 
 **추가 패키지**
 
 ```bash
-npm install tailwindcss lucide-react @tanstack/react-query zustand recharts xrpl walletconnect
+npm install tailwindcss lucide-react @tanstack/react-query zustand recharts xrpl
 ```
 
 ---
@@ -81,11 +81,11 @@ npm install tailwindcss lucide-react @tanstack/react-query zustand recharts xrpl
 
 ## 🔌 지갑 연결 상세
 
-| 지갑       | 방식                                           |
-| ---------- | ---------------------------------------------- |
-| Xaman      | WalletConnect / xumm SDK                       |
-| FuturePass | The Root Network 연동 방식 고려, 최소 MVP 지원 |
-| 지갑 상태  | 전역 상태로 관리 (Zustand), Header에 표시      |
+| 지갑       | 방식                                               |
+| ---------- | -------------------------------------------------- |
+| Xaman      | Xaman SDK - 브라우저 기반 연결 (xumm.min.js)       |
+| FuturePass | 추후 구현 예정                                     |
+| 지갑 상태  | 전역 상태로 관리 (Zustand), Header에 드롭다운 표시 |
 
 ---
 
@@ -127,10 +127,10 @@ type StakingInfo = {
 
 ### 🔵 3단계: 지갑 연결
 
-- [x] Xaman WalletConnect 연동 (연결/해제 상태 관리)
-- [x] FuturePass 최소 연결 구조 설계 및 UI 반영
+- [x] Xaman SDK 연동 (연결/해제 상태 관리)
+- [x] FuturePass 연결 UI 구현 (추후 실제 연동 예정)
 - [x] Zustand로 전역 지갑 상태 저장
-- [x] 지갑 주소, 잔액 UI 구성
+- [x] 지갑 주소, 잔액 UI 구성 및 드롭다운 메뉴 추가
 
 ---
 

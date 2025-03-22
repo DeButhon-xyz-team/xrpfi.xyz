@@ -7,14 +7,18 @@ import { useWallet } from '@/hooks/useWallet';
 import WalletModal from '@/components/wallet/WalletModal';
 
 export default function GlobalHeader() {
-	const { wallet, getAddressDisplay, disconnectWallet, refreshBalance } = useWallet();
+	const { wallet, getAddressDisplay, disconnectWallet, refreshBalance, isClient } = useWallet();
 	const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
-	const addressDisplay = getAddressDisplay();
+
+	// 서버 렌더링 중에는 빈 주소를 사용
+	const addressDisplay = isClient ? getAddressDisplay() : '';
 
 	// 드롭다운 외부 클릭 시 닫기
 	useEffect(() => {
+		if (!isClient) return;
+
 		function handleClickOutside(event: MouseEvent) {
 			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
 				setIsDropdownOpen(false);
@@ -25,7 +29,7 @@ export default function GlobalHeader() {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, []);
+	}, [isClient]);
 
 	// 지갑 연결 해제
 	const handleDisconnect = async () => {
@@ -67,66 +71,68 @@ export default function GlobalHeader() {
 						</li>
 					</ul>
 				</nav>
-				<div className="flex items-center space-x-3">
-					{wallet.connected ? (
-						<div className="relative" ref={dropdownRef}>
-							<button
-								onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-								className="flex items-center py-1 px-3 rounded-full bg-dark-card border border-dark-border hover:border-neon-purple transition-colors duration-150"
-							>
-								<div className="w-3 h-3 bg-neon-green rounded-full mr-2"></div>
-								<span className="text-sm font-mono">{addressDisplay}</span>
-							</button>
+				{isClient && (
+					<div className="flex items-center space-x-3">
+						{wallet.connected ? (
+							<div className="relative" ref={dropdownRef}>
+								<button
+									onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+									className="flex items-center py-1 px-3 rounded-full bg-dark-card border border-dark-border hover:border-neon-purple transition-colors duration-150"
+								>
+									<div className="w-3 h-3 bg-neon-green rounded-full mr-2"></div>
+									<span className="text-sm font-mono">{addressDisplay}</span>
+								</button>
 
-							{isDropdownOpen && (
-								<div className="absolute right-0 mt-2 w-48 bg-dark-card rounded-md border border-dark-border shadow-lg z-10">
-									<div className="py-1">
-										<button
-											onClick={handleRefreshBalance}
-											className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150"
-										>
-											<RefreshCw className="w-4 h-4 mr-2" />
-											잔액 새로고침
-										</button>
-										<button
-											onClick={() => {
-												setIsWalletModalOpen(true);
-												setIsDropdownOpen(false);
-											}}
-											className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150"
-										>
-											<Wallet className="w-4 h-4 mr-2" />
-											지갑 변경
-										</button>
-										<button
-											onClick={handleDisconnect}
-											className="flex items-center w-full px-4 py-2 text-sm text-red-400 hover:bg-dark-border transition-colors duration-150"
-										>
-											<LogOut className="w-4 h-4 mr-2" />
-											연결 해제
-										</button>
+								{isDropdownOpen && (
+									<div className="absolute right-0 mt-2 w-48 bg-dark-card rounded-md border border-dark-border shadow-lg z-10">
+										<div className="py-1">
+											<button
+												onClick={handleRefreshBalance}
+												className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150"
+											>
+												<RefreshCw className="w-4 h-4 mr-2" />
+												잔액 새로고침
+											</button>
+											<button
+												onClick={() => {
+													setIsWalletModalOpen(true);
+													setIsDropdownOpen(false);
+												}}
+												className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150"
+											>
+												<Wallet className="w-4 h-4 mr-2" />
+												지갑 변경
+											</button>
+											<button
+												onClick={handleDisconnect}
+												className="flex items-center w-full px-4 py-2 text-sm text-red-400 hover:bg-dark-border transition-colors duration-150"
+											>
+												<LogOut className="w-4 h-4 mr-2" />
+												연결 해제
+											</button>
+										</div>
 									</div>
-								</div>
-							)}
-						</div>
-					) : wallet.loading ? (
-						<button className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border">
-							<Loader className="w-4 h-4 mr-2 animate-spin" />
-							연결중...
-						</button>
-					) : (
-						<button
-							onClick={() => setIsWalletModalOpen(true)}
-							className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border hover:bg-dark-border transition-colors duration-150"
-						>
-							<Wallet className="w-4 h-4 mr-2" />
-							지갑 연결
-						</button>
-					)}
-				</div>
+								)}
+							</div>
+						) : wallet.loading ? (
+							<button className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border">
+								<Loader className="w-4 h-4 mr-2 animate-spin" />
+								연결중...
+							</button>
+						) : (
+							<button
+								onClick={() => setIsWalletModalOpen(true)}
+								className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border hover:bg-dark-border transition-colors duration-150"
+							>
+								<Wallet className="w-4 h-4 mr-2" />
+								지갑 연결
+							</button>
+						)}
+					</div>
+				)}
 			</div>
 
-			<WalletModal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} />
+			{isClient && <WalletModal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} />}
 		</header>
 	);
 }
