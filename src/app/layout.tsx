@@ -15,10 +15,10 @@ export const metadata = {
 		title: 'Concierge - XRPL 사용자를 위한 멀티체인 스테이킹',
 		description: 'XRP를 예치하면 Axelar를 통해 PoS 체인으로 자산이 브릿징되고, 스테이킹 수익이 RLUSD로 지급됩니다',
 		siteName: 'Concierge',
-		url: 'https://xrpfi.vercel.app/',
+		url: 'https://concierge-omega.vercel.app',
 		images: [
 			{
-				url: 'https://xrpfi.vercel.app/opengraph-image.png',
+				url: 'https://concierge-omega.vercel.app/opengraph-image.png',
 				alt: 'Concierge OpenGraph Image',
 			},
 		],
