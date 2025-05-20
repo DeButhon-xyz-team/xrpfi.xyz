@@ -118,14 +118,13 @@ export default function GlobalHeader() {
 				<div className="max-w-[768px] mx-auto px-4">
 					{/* 첫 번째 단: 로고 */}
 					<div className="flex justify-start mb-4">
-						<Link href="/" className="cursor-pointer block">
+						<Link href="/" className="cursor-pointer">
 							<Image
 								src="/images/logo_concierge.png"
 								alt={t('common.header.logoAlt')}
 								width={200}
 								height={40}
 								className="w-[160px] sm:w-[200px] hover:opacity-90 transition-opacity duration-150"
-								priority
 							/>
 						</Link>
 					</div>

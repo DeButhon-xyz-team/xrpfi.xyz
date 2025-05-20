@@ -5,6 +5,7 @@ import { XamanConnector, FuturePassConnector, initXamanSDK, activateTestnetAccou
 export function useWallet() {
 	const { wallet, setWallet, resetWallet, getDisplayAddress } = useWalletStore();
 	const [isClient, setIsClient] = useState(false);
+	const [isSdkInitialized, setIsSdkInitialized] = useState(false);
 
 	// 클라이언트 사이드 렌더링 확인
 	useEffect(() => {
@@ -18,15 +19,20 @@ export function useWallet() {
 
 		const initializeSdk = async () => {
 			try {
+				// 이미 초기화되어 있다면 스킵
+				if (isSdkInitialized) return;
+
 				await initXamanSDK();
 				console.log('Xaman SDK initialized');
+				setIsSdkInitialized(true);
 			} catch (error) {
 				console.error('Xaman SDK initialization error:', error);
+				setIsSdkInitialized(false);
 			}
 		};
 
 		initializeSdk();
-	}, [isClient]);
+	}, [isClient, isSdkInitialized]);
 
 	// 페이지 로드 시 저장된 지갑 상태에서 잔액 새로고침
 	useEffect(() => {
@@ -70,7 +76,16 @@ export function useWallet() {
 	// 지갑 연결 함수
 	const connectWallet = useCallback(
 		async (type: WalletType) => {
-			if (!isClient || !type) return { success: false, error: '클라이언트 환경이 아닙니다.' };
+			if (!isClient) return { success: false, error: '클라이언트 환경이 아닙니다.' };
+			if (!isSdkInitialized && type === 'xaman') {
+				try {
+					await initXamanSDK();
+					setIsSdkInitialized(true);
+				} catch (error) {
+					console.error('Xaman SDK initialization error:', error);
+					return { success: false, error: 'Xaman SDK 초기화에 실패했습니다.' };
+				}
+			}
 
 			try {
 				// 로딩 상태 시작
@@ -120,7 +135,7 @@ export function useWallet() {
 				};
 			}
 		},
-		[isClient, setWallet]
+		[isClient, isSdkInitialized, setWallet]
 	);
 
 	// 지갑 연결 해제 함수
@@ -203,5 +218,6 @@ export function useWallet() {
 		requestTestnetXRP,
 		getAddressDisplay: getDisplayAddress,
 		isClient,
+		isSdkInitialized,
 	};
 }
