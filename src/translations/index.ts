@@ -40,6 +40,7 @@ export const translations = {
 					connectError: 'An error occurred while connecting the wallet.',
 				},
 			},
+			dashboard: 'Dashboard',
 		},
 		wallet: {
 			title: 'Wallet Information',
@@ -204,6 +205,7 @@ export const translations = {
 					connectError: '지갑 연결 중 오류가 발생했습니다.',
 				},
 			},
+			dashboard: '대시보드',
 		},
 		wallet: {
 			title: '지갑 정보',

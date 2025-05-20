@@ -27,11 +27,11 @@ export function LanguageSelector() {
 		<div className="relative" ref={dropdownRef}>
 			<button
 				onClick={() => setIsOpen(!isOpen)}
-				className="flex items-center space-x-2 px-3 py-1 bg-dark-card border border-dark-border rounded-md hover:border-neon-purple transition-colors duration-150"
+				className="flex items-center space-x-0 sm:space-x-2 px-2 sm:px-3 py-1 bg-dark-card border border-dark-border rounded-md hover:border-neon-purple transition-colors duration-150"
 			>
 				<Globe className="w-4 h-4 text-gray-400" />
-				<span className="text-sm">{language === 'en' ? 'English' : '한국어'}</span>
-				<ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+				<span className="text-sm hidden sm:inline">{language === 'en' ? 'English' : '한국어'}</span>
+				<ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 hidden sm:block ${isOpen ? 'rotate-180' : ''}`} />
 			</button>
 			
 			{isOpen && (

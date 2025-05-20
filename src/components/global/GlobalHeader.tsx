@@ -115,19 +115,38 @@ export default function GlobalHeader() {
 	return (
 		<>
 			<header className="sticky top-0 z-50 border-b border-dark-border py-4 bg-black backdrop-blur-sm bg-opacity-80">
-				<div className="max-w-[768px] mx-auto px-4 flex justify-between items-center">
-					<div className="flex items-center">
-						<Link href="/" className="cursor-pointer mr-12">
+				<div className="max-w-[768px] mx-auto px-4">
+					{/* 첫 번째 단: 로고 */}
+					<div className="flex justify-start mb-4">
+						<Link href="/" className="cursor-pointer block">
 							<Image
 								src="/images/logo_concierge.png"
 								alt={t('common.header.logoAlt')}
 								width={200}
 								height={40}
-								className="hover:opacity-90 transition-opacity duration-150"
+								className="w-[160px] sm:w-[200px] hover:opacity-90 transition-opacity duration-150"
+								priority
 							/>
 						</Link>
-						<nav className="pt-2">
+					</div>
+
+					{/* 두 번째 단: 스테이킹 메뉴, 언어 전환, 지갑 관련 요소 */}
+					<div className="flex justify-between items-center">
+						<nav>
 							<ul className="flex space-x-4">
+								<li>
+									<Link
+										href="/"
+										className={`font-semibold transition-all duration-150 cursor-pointer relative
+											${
+												pathname === '/'
+													? 'after:content-[""] after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[2px] after:bg-[currentColor] after:rounded-full'
+													: 'after:content-[""] after:absolute after:left-0 after:right-full after:-bottom-1 after:h-[2px] after:bg-[currentColor] after:rounded-full after:transition-all after:duration-200 after:ease-out hover:after:right-0'
+											}`}
+									>
+										{t('common.dashboard')}
+									</Link>
+								</li>
 								<li>
 									<Link
 										href="/staking"
@@ -143,68 +162,70 @@ export default function GlobalHeader() {
 								</li>
 							</ul>
 						</nav>
-					</div>
-					{isClient && (
-						<div className="flex items-center space-x-3">
-							<LanguageSelector />
-							{wallet.connected ? (
-								<div className="relative" ref={dropdownRef}>
-									<button
-										onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-										className="flex items-center py-1 px-3 rounded-full bg-dark-card border border-dark-border hover:border-neon-purple transition-colors duration-150 cursor-pointer"
-									>
-										<div className="w-3 h-3 bg-neon-green rounded-full mr-2"></div>
-										<span className="text-sm font-mono">{addressDisplay}</span>
-									</button>
 
-									{isDropdownOpen && (
-										<div className="absolute right-0 mt-2 w-48 bg-dark-card rounded-md border border-dark-border shadow-lg z-50">
-											<div className="py-1">
-												<button
-													onClick={handleRefreshBalance}
-													disabled={isRefreshing}
-													className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150 cursor-pointer"
-												>
-													<RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-													{isRefreshing ? t('common.updating') : t('common.refreshBalance')}
-												</button>
-												<button
-													onClick={() => {
-														openWalletModal();
-														setIsDropdownOpen(false);
-													}}
-													className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150 cursor-pointer"
-												>
-													<Wallet className="w-4 h-4 mr-2" />
-													{t('common.changeWallet')}
-												</button>
-												<button
-													onClick={handleDisconnect}
-													className="flex items-center w-full px-4 py-2 text-sm text-red-400 hover:bg-dark-border transition-colors duration-150 cursor-pointer"
-												>
-													<LogOut className="w-4 h-4 mr-2" />
-													{t('common.disconnect')}
-												</button>
+						{isClient && (
+							<div className="flex items-center space-x-3">
+								<LanguageSelector />
+								{wallet.connected ? (
+									<div className="relative" ref={dropdownRef}>
+										<button
+											onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+											className="flex items-center py-1 px-3 rounded-full bg-dark-card border border-dark-border hover:border-neon-purple transition-colors duration-150 cursor-pointer"
+										>
+											<div className="w-3 h-3 bg-neon-green rounded-full mr-2"></div>
+											<span className="text-sm font-mono hidden sm:inline">{addressDisplay}</span>
+											<span className="text-sm font-mono sm:hidden">{addressDisplay.slice(0, 6)}...</span>
+										</button>
+
+										{isDropdownOpen && (
+											<div className="absolute right-0 mt-2 w-48 bg-dark-card rounded-md border border-dark-border shadow-lg z-50">
+												<div className="py-1">
+													<button
+														onClick={handleRefreshBalance}
+														disabled={isRefreshing}
+														className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150 cursor-pointer"
+													>
+														<RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+														{isRefreshing ? t('common.updating') : t('common.refreshBalance')}
+													</button>
+													<button
+														onClick={() => {
+															openWalletModal();
+															setIsDropdownOpen(false);
+														}}
+														className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150 cursor-pointer"
+													>
+														<Wallet className="w-4 h-4 mr-2" />
+														{t('common.changeWallet')}
+													</button>
+													<button
+														onClick={handleDisconnect}
+														className="flex items-center w-full px-4 py-2 text-sm text-red-400 hover:bg-dark-border transition-colors duration-150 cursor-pointer"
+													>
+														<LogOut className="w-4 h-4 mr-2" />
+														{t('common.disconnect')}
+													</button>
+												</div>
 											</div>
-										</div>
-									)}
-								</div>
-							) : wallet.loading || localLoading ? (
-								<button className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border cursor-pointer">
-									<Loader className="w-4 h-4 mr-2 animate-spin" />
-									{t('common.connecting')}
-								</button>
-							) : (
-								<button
-									onClick={handleOpenWalletModal}
-									className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border hover:bg-dark-border transition-colors duration-150 cursor-pointer"
-								>
-									<Wallet className="w-4 h-4 mr-2" />
-									{t('common.connectWallet')}
-								</button>
-							)}
-						</div>
-					)}
+										)}
+									</div>
+								) : wallet.loading || localLoading ? (
+									<button className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border cursor-pointer">
+										<Loader className="w-4 h-4 mr-2 animate-spin" />
+										{t('common.connecting')}
+									</button>
+								) : (
+									<button
+										onClick={handleOpenWalletModal}
+										className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border hover:bg-dark-border transition-colors duration-150 cursor-pointer"
+									>
+										<Wallet className="w-4 h-4 mr-2" />
+										{t('common.connectWallet')}
+									</button>
+								)}
+							</div>
+						)}
+					</div>
 				</div>
 			</header>
 		</>
