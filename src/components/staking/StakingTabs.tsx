@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import StakePanel from './StakePanel';
 import WithdrawPanel from './WithdrawPanel';
 import { PlusCircle, MinusCircle } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type Tab = 'stake' | 'withdraw';
 
@@ -10,6 +11,7 @@ interface StakingTabsProps {
 }
 
 export default function StakingTabs({ defaultTab = 'stake' }: StakingTabsProps) {
+	const { t } = useTranslation();
 	const [activeTab, setActiveTab] = useState<Tab>(defaultTab);
 
 	return (
@@ -23,7 +25,7 @@ export default function StakingTabs({ defaultTab = 'stake' }: StakingTabsProps) 
 					onClick={() => setActiveTab('stake')}
 				>
 					<PlusCircle className="h-4 w-4 mr-1.5" />
-					<span>스테이킹</span>
+					<span>{t('staking.tabs.stake')}</span>
 				</button>
 				<button
 					className={`flex items-center justify-center w-1/2 py-2 rounded-md transition-all cursor-pointer duration-200 ${
@@ -32,7 +34,7 @@ export default function StakingTabs({ defaultTab = 'stake' }: StakingTabsProps) 
 					onClick={() => setActiveTab('withdraw')}
 				>
 					<MinusCircle className="h-4 w-4 mr-1.5" />
-					<span>해지</span>
+					<span>{t('staking.tabs.withdraw')}</span>
 				</button>
 			</div>
 

@@ -7,6 +7,7 @@ import { Wallet, Loader, Info, AlertCircle } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { useWalletStore, WalletType } from '@/store/walletState';
 import { useToast } from '@/components/ui/ToastContainer';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function GlobalWalletModal() {
 	const { connectWallet, wallet, resetLoadingState, isClient } = useWallet();
@@ -15,6 +16,7 @@ export default function GlobalWalletModal() {
 	const [connectError, setConnectError] = useState<string | null>(null);
 	const [isConnecting, setIsConnecting] = useState(false);
 	const [isMounted, setIsMounted] = useState(false);
+	const { t } = useTranslation();
 
 	// 클라이언트 사이드에서만 렌더링되도록 마운트 상태 확인
 	useEffect(() => {
@@ -34,16 +36,16 @@ export default function GlobalWalletModal() {
 			const result = await connectWallet(type);
 
 			if (result.success) {
-				showToast('success', `${type === 'xaman' ? 'Xaman' : 'FuturePass'} 지갑이 연결되었습니다`);
+				showToast('success', `${type === 'xaman' ? 'Xaman' : 'FuturePass'} ${t('common.walletModal.connectSuccess')}`);
 				closeWalletModal();
 			} else {
-				setConnectError(result.error || '지갑 연결에 실패했습니다. 다시 시도해주세요.');
+				setConnectError(result.error || t('common.walletModal.errors.connectFailed'));
 				// 명시적으로 로딩 상태 초기화
 				resetLoadingState();
 			}
 		} catch (error) {
 			console.error('지갑 연결 오류:', error);
-			setConnectError('지갑 연결 중 오류가 발생했습니다.');
+			setConnectError(t('common.walletModal.errors.connectError'));
 			// 에러 발생 시에도 로딩 상태 초기화
 			resetLoadingState();
 		} finally {
@@ -61,9 +63,9 @@ export default function GlobalWalletModal() {
 	};
 
 	return (
-		<Modal isOpen={isWalletModalOpen} onClose={handleClose} title="지갑 연결" size="sm">
+		<Modal isOpen={isWalletModalOpen} onClose={handleClose} title={t('common.walletModal.title')} size="sm">
 			<div className="space-y-4">
-				<p className="text-sm text-gray-400 mb-4">XRPL 지갑을 연결하여 스테이킹 서비스를 이용하세요.</p>
+				<p className="text-sm text-gray-400 mb-4">{t('common.walletModal.description')}</p>
 
 				{connectError && (
 					<div className="p-3 bg-red-950/40 border border-red-800/50 rounded-md flex items-start space-x-2 mb-2">
@@ -83,7 +85,7 @@ export default function GlobalWalletModal() {
 						) : (
 							<Wallet className="mr-2 h-4 w-4" />
 						)}
-						Xaman (XUMM) 연결
+						{t('common.walletModal.connectXaman')}
 					</Button>
 
 					<Button
@@ -97,20 +99,20 @@ export default function GlobalWalletModal() {
 						) : (
 							<Wallet className="mr-2 h-4 w-4" />
 						)}
-						FuturePass 연결 (준비 중)
+						{t('common.walletModal.connectFuturePass')}
 					</Button>
 				</div>
 
 				<div className="p-3 bg-dark-background/40 rounded-md flex items-start space-x-2 mt-4">
 					<Info className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
 					<div className="text-xs text-gray-400">
-						<p className="mb-1">Xaman 연결 시 알림창이 나타납니다. Xaman 앱에서 요청을 승인해주세요.</p>
-						<p>FuturePass 연결은 현재 준비 중입니다.</p>
+						<p className="mb-1">{t('common.walletModal.info.xaman')}</p>
+						<p>{t('common.walletModal.info.futurePass')}</p>
 					</div>
 				</div>
 
 				<div className="pt-2 text-xs text-gray-400">
-					<p>연결함으로써 이용약관 및 개인정보처리방침에 동의합니다.</p>
+					<p>{t('common.walletModal.terms')}</p>
 				</div>
 			</div>
 		</Modal>

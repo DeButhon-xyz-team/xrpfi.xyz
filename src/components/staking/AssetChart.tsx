@@ -2,6 +2,7 @@ import React from 'react';
 import Card from '@/components/ui/Card';
 import { useStakingStore } from '@/store/stakingState';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const formatDate = (dateStr: string) => {
 	const date = new Date(dateStr);
@@ -9,6 +10,7 @@ const formatDate = (dateStr: string) => {
 };
 
 const AssetChart: React.FC = () => {
+	const { t } = useTranslation();
 	const { stakingInfo, isLoading } = useStakingStore();
 
 	// 데이터 포인트 계산
@@ -21,7 +23,7 @@ const AssetChart: React.FC = () => {
 
 	if (isLoading) {
 		return (
-			<Card title="자산 추이" className="w-full">
+			<Card title={t('staking.chart.title')} className="w-full">
 				<div className="flex justify-center items-center h-48">
 					<div className="loader w-8 h-8 border-4 border-t-neon-blue rounded-full animate-spin"></div>
 				</div>
@@ -30,7 +32,7 @@ const AssetChart: React.FC = () => {
 	}
 
 	return (
-		<Card title="자산 추이" className="w-full">
+		<Card title={t('staking.chart.title')} className="w-full">
 			<div className="p-2">
 				<div className="h-64 w-full">
 					{chartData.length > 0 ? (
@@ -51,7 +53,7 @@ const AssetChart: React.FC = () => {
 								<Line
 									type="monotone"
 									dataKey="staked"
-									name="스테이킹"
+									name={t('staking.chart.legend.staked')}
 									stroke="#3b82f6"
 									strokeWidth={2}
 									dot={{ r: 3 }}
@@ -60,7 +62,7 @@ const AssetChart: React.FC = () => {
 								<Line
 									type="monotone"
 									dataKey="reward"
-									name="보상"
+									name={t('staking.chart.legend.reward')}
 									stroke="#a855f7"
 									strokeWidth={2}
 									dot={{ r: 3 }}
@@ -69,7 +71,7 @@ const AssetChart: React.FC = () => {
 								<Line
 									type="monotone"
 									dataKey="total"
-									name="총액"
+									name={t('staking.chart.legend.total')}
 									stroke="#10b981"
 									strokeWidth={2}
 									dot={{ r: 3 }}
@@ -79,7 +81,7 @@ const AssetChart: React.FC = () => {
 						</ResponsiveContainer>
 					) : (
 						<div className="flex justify-center items-center h-full">
-							<p className="text-gray-400">스테이킹 기록이 없습니다.</p>
+							<p className="text-gray-400">{t('staking.chart.noHistory')}</p>
 						</div>
 					)}
 				</div>

@@ -8,6 +8,8 @@ import { useWallet } from '@/hooks/useWallet';
 import { useWalletStore } from '@/store/walletState';
 import { useToast } from '@/components/ui/ToastContainer';
 import { usePathname } from 'next/navigation';
+import { LanguageSelector } from './LanguageSelector';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function GlobalHeader() {
 	const { wallet, getAddressDisplay, disconnectWallet, refreshBalance, resetLoadingState, isClient } = useWallet();
@@ -18,6 +20,7 @@ export default function GlobalHeader() {
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const pathname = usePathname();
+	const { t } = useTranslation();
 
 	// 서버 렌더링 중에는 빈 주소를 사용
 	const addressDisplay = isClient ? getAddressDisplay() : '';
@@ -66,10 +69,10 @@ export default function GlobalHeader() {
 		setIsRefreshing(true);
 		try {
 			await refreshBalance();
-			showToast('success', '잔액이 업데이트되었습니다');
+			showToast('success', t('common.balanceUpdated'));
 		} catch (error) {
 			console.error('잔액 새로고침 실패:', error);
-			showToast('error', '잔액 업데이트에 실패했습니다');
+			showToast('error', t('common.updateFailed'));
 		} finally {
 			setIsRefreshing(false);
 			setIsDropdownOpen(false);
@@ -81,13 +84,13 @@ export default function GlobalHeader() {
 		try {
 			const result = await disconnectWallet();
 			if (result.success) {
-				showToast('info', '지갑 연결이 해제되었습니다');
+				showToast('info', t('common.walletDisconnected'));
 			} else if (result.error) {
 				showToast('error', result.error);
 			}
 		} catch (error) {
 			console.error('지갑 연결 해제 실패:', error);
-			showToast('error', '지갑 연결 해제 중 오류가 발생했습니다');
+			showToast('error', t('common.disconnectError'));
 		} finally {
 			setIsDropdownOpen(false);
 		}
@@ -117,13 +120,13 @@ export default function GlobalHeader() {
 						<Link href="/" className="cursor-pointer mr-12">
 							<Image
 								src="/images/logo_concierge.png"
-								alt="Concierge 로고"
+								alt={t('common.header.logoAlt')}
 								width={200}
 								height={40}
 								className="hover:opacity-90 transition-opacity duration-150"
 							/>
 						</Link>
-						<nav>
+						<nav className="pt-2">
 							<ul className="flex space-x-4">
 								<li>
 									<Link
@@ -131,11 +134,11 @@ export default function GlobalHeader() {
 										className={`font-semibold transition-all duration-150 cursor-pointer relative
 											${
 												pathname === '/staking'
-													? 'after:content-[""] after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[1px] after:bg-[currentColor] after:rounded-full'
-													: 'after:content-[""] after:absolute after:left-0 after:right-full after:-bottom-1 after:h-[1px] after:bg-[currentColor] after:rounded-full after:transition-all after:duration-200 after:ease-out hover:after:right-0'
+													? 'after:content-[""] after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[2px] after:bg-[currentColor] after:rounded-full'
+													: 'after:content-[""] after:absolute after:left-0 after:right-full after:-bottom-1 after:h-[2px] after:bg-[currentColor] after:rounded-full after:transition-all after:duration-200 after:ease-out hover:after:right-0'
 											}`}
 									>
-										스테이킹
+										{t('common.staking')}
 									</Link>
 								</li>
 							</ul>
@@ -143,6 +146,7 @@ export default function GlobalHeader() {
 					</div>
 					{isClient && (
 						<div className="flex items-center space-x-3">
+							<LanguageSelector />
 							{wallet.connected ? (
 								<div className="relative" ref={dropdownRef}>
 									<button
@@ -162,7 +166,7 @@ export default function GlobalHeader() {
 													className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150 cursor-pointer"
 												>
 													<RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-													{isRefreshing ? '업데이트 중...' : '잔액 새로고침'}
+													{isRefreshing ? t('common.updating') : t('common.refreshBalance')}
 												</button>
 												<button
 													onClick={() => {
@@ -172,14 +176,14 @@ export default function GlobalHeader() {
 													className="flex items-center w-full px-4 py-2 text-sm hover:bg-dark-border transition-colors duration-150 cursor-pointer"
 												>
 													<Wallet className="w-4 h-4 mr-2" />
-													지갑 변경
+													{t('common.changeWallet')}
 												</button>
 												<button
 													onClick={handleDisconnect}
 													className="flex items-center w-full px-4 py-2 text-sm text-red-400 hover:bg-dark-border transition-colors duration-150 cursor-pointer"
 												>
 													<LogOut className="w-4 h-4 mr-2" />
-													연결 해제
+													{t('common.disconnect')}
 												</button>
 											</div>
 										</div>
@@ -188,7 +192,7 @@ export default function GlobalHeader() {
 							) : wallet.loading || localLoading ? (
 								<button className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border cursor-pointer">
 									<Loader className="w-4 h-4 mr-2 animate-spin" />
-									연결중...
+									{t('common.connecting')}
 								</button>
 							) : (
 								<button
@@ -196,7 +200,7 @@ export default function GlobalHeader() {
 									className="flex items-center py-1 px-3 text-sm rounded-full bg-dark-card border border-dark-border hover:bg-dark-border transition-colors duration-150 cursor-pointer"
 								>
 									<Wallet className="w-4 h-4 mr-2" />
-									지갑 연결
+									{t('common.connectWallet')}
 								</button>
 							)}
 						</div>

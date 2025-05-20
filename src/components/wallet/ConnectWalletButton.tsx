@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from '@/components/ui/Button';
 import { useWalletStore } from '@/store/walletState';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ConnectWalletButtonProps {
 	className?: string;
@@ -10,16 +11,17 @@ interface ConnectWalletButtonProps {
 
 export default function ConnectWalletButton({
 	className = 'w-full',
-	label = '지갑 연결하기',
+	label,
 	showMessage = true,
 }: ConnectWalletButtonProps) {
+	const { t } = useTranslation();
 	const { openWalletModal } = useWalletStore();
 
 	return (
 		<div className="text-center">
-			{showMessage && <p className="text-gray-400 mb-4">지갑을 연결하여 서비스를 이용하세요.</p>}
+			{showMessage && <p className="text-gray-400 mb-4">{t('common.connectWalletMessage')}</p>}
 			<Button onClick={openWalletModal} className={className}>
-				{label}
+				{label || t('common.connectWallet')}
 			</Button>
 		</div>
 	);

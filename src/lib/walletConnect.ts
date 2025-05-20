@@ -133,7 +133,9 @@ export const initXamanSDK = async (): Promise<void> => {
 				try {
 					// Xaman SDK 초기화
 					if (window.Xumm && XAMAN_API_KEY) {
-						xumm = new window.Xumm(XAMAN_API_KEY);
+						xumm = new window.Xumm(XAMAN_API_KEY, {
+							redirectUrl: window.location.origin,
+						});
 
 						xumm.on('ready', () => {
 							console.log('Xaman SDK ready');
@@ -149,9 +151,10 @@ export const initXamanSDK = async (): Promise<void> => {
 							reject(error);
 						});
 					} else {
-						console.error('Xaman SDK or API key is missing');
+						const error = new Error('Xaman SDK or API key is missing');
+						console.error(error.message);
 						isInitializing = false;
-						reject(new Error('Xaman SDK or API key is missing'));
+						reject(error);
 					}
 				} catch (error) {
 					console.error('Xaman SDK initialization error:', error);

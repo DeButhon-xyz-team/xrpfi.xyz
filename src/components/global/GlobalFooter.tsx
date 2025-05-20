@@ -5,8 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Github } from 'lucide-react';
 import IconButton from '../ui/IconButton';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function GlobalFooter() {
+	const { t } = useTranslation();
+
 	return (
 		<footer className="border-t border-dark-border py-6 mt-auto">
 			<div className="max-w-[768px] mx-auto px-4">
@@ -15,13 +18,13 @@ export default function GlobalFooter() {
 						<Link href="/" className="cursor-pointer flex justify-center w-fit mx-auto md:mx-0">
 							<Image
 								src="/images/logo_concierge.png"
-								alt="Concierge 로고"
+								alt={t('common.footer.logoAlt')}
 								width={100}
 								height={33}
 								className="hover:opacity-90 transition-opacity duration-150"
 							/>
 						</Link>
-						<p className="text-sm text-gray-400 mt-2">XRPL 사용자를 위한 멀티체인 스테이킹 플랫폼</p>
+						<p className="text-sm text-gray-400 mt-2">{t('common.footer.description')}</p>
 					</div>
 
 					<div className="flex flex-col items-center md:items-end">
@@ -31,7 +34,7 @@ export default function GlobalFooter() {
 								<span className="text-xs text-gray-400">https://github.com/DeButhon-xyz-team</span>
 							</Link>
 						</div>
-						<p className="text-sm text-gray-400">© 2024 Concierge. All rights reserved.</p>
+						<p className="text-sm text-gray-400">{t('common.footer.copyright')}</p>
 					</div>
 				</div>
 			</div>

@@ -7,8 +7,10 @@ import IconButton from '@/components/ui/IconButton';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { useToast } from '@/components/ui/ToastContainer';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function WalletInfo() {
+	const { t } = useTranslation();
 	const { wallet, refreshBalance, getAddressDisplay, requestTestnetXRP } = useWallet();
 	const { showToast } = useToast();
 	const addressDisplay = getAddressDisplay();
@@ -24,7 +26,7 @@ export default function WalletInfo() {
 		try {
 			await navigator.clipboard.writeText(wallet.address);
 			setIsCopied(true);
-			showToast('success', '주소가 클립보드에 복사되었습니다');
+			showToast('success', t('wallet.addressCopied'));
 
 			// 2초 후 상태 초기화
 			setTimeout(() => {
@@ -32,7 +34,7 @@ export default function WalletInfo() {
 			}, 2000);
 		} catch (error) {
 			console.error('클립보드 복사 실패:', error);
-			showToast('error', '주소 복사에 실패했습니다');
+			showToast('error', t('wallet.errors.copyFailed'));
 
 			// fallback: 클립보드 API가 지원되지 않는 환경
 			const textArea = document.createElement('textarea');
@@ -44,14 +46,14 @@ export default function WalletInfo() {
 			try {
 				document.execCommand('copy');
 				setIsCopied(true);
-				showToast('success', '주소가 클립보드에 복사되었습니다');
+				showToast('success', t('wallet.addressCopied'));
 
 				setTimeout(() => {
 					setIsCopied(false);
 				}, 2000);
 			} catch (e) {
 				console.error('대체 복사 방법 실패:', e);
-				showToast('error', '주소 복사에 실패했습니다');
+				showToast('error', t('wallet.errors.copyFailed'));
 			}
 
 			document.body.removeChild(textArea);
@@ -71,10 +73,10 @@ export default function WalletInfo() {
 
 		try {
 			await refreshBalance();
-			showToast('info', '잔액이 업데이트되었습니다');
+			showToast('info', t('common.balanceUpdated'));
 		} catch (error) {
 			console.error('잔액 새로고침 실패:', error);
-			showToast('error', '잔액 업데이트에 실패했습니다');
+			showToast('error', t('common.updateFailed'));
 		} finally {
 			setIsRefreshing(false);
 		}
@@ -91,18 +93,18 @@ export default function WalletInfo() {
 			const success = await requestTestnetXRP();
 
 			if (success) {
-				showToast('success', '테스트넷 XRP를 요청했습니다. 잠시 후 잔액을 확인해 보세요.');
+				showToast('success', t('wallet.requestTestnetXRP'));
 
 				// 3초 후 잔액 새로고침
 				setTimeout(() => {
 					refreshBalance();
 				}, 3000);
 			} else {
-				setRequestError('테스트넷 XRP 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+				setRequestError(t('wallet.errors.requestFailed'));
 			}
 		} catch (error) {
 			console.error('테스트넷 XRP 요청 오류:', error);
-			setRequestError('테스트넷 XRP 요청 중 오류가 발생했습니다.');
+			setRequestError(t('wallet.errors.requestError'));
 		} finally {
 			setIsRequestingXRP(false);
 		}
@@ -112,11 +114,11 @@ export default function WalletInfo() {
 	const needsTestnetXRP = wallet.balance === 0;
 
 	return (
-		<Card title="지갑 정보" className="w-full">
+		<Card title={t('wallet.title')} className="w-full">
 			<div className="p-3 bg-dark-card rounded-lg border border-dark-border">
 				<div className="flex items-center justify-between mb-2">
 					<div className="flex items-center overflow-hidden">
-						<span className="text-sm font-medium mr-1 flex-shrink-0">지갑 주소:</span>
+						<span className="text-sm font-medium mr-1 flex-shrink-0">{t('wallet.address')}</span>
 						<span className="text-sm font-mono truncate">{addressDisplay}</span>
 					</div>
 					<div className="flex space-x-1 flex-shrink-0">
@@ -139,7 +141,7 @@ export default function WalletInfo() {
 
 				<div className="flex items-center justify-between">
 					<div className="flex items-center">
-						<span className="text-sm font-medium mr-1">잔액:</span>
+						<span className="text-sm font-medium mr-1">{t('wallet.balance')}</span>
 						<span className={`${needsTestnetXRP ? 'text-yellow-400' : 'text-neon-green'}`}>
 							{wallet.balance.toFixed(2)} XRP
 						</span>
@@ -174,18 +176,18 @@ export default function WalletInfo() {
 							{isRequestingXRP ? (
 								<>
 									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									요청 중...
+									{t('wallet.requesting')}
 								</>
 							) : (
 								<>
 									<CircleDollarSign className="mr-2 h-4 w-4" />
-									테스트넷 XRP 요청하기
+									{t('wallet.requestTestnetXRP')}
 								</>
 							)}
 						</Button>
 
 						<p className="text-xs text-muted-foreground mt-1">
-							테스트넷 XRP를 요청하면 새 창이 열립니다. 창에서 &quot;Create Account&quot; 버튼을 클릭하세요.
+							{t('wallet.requestInstructions')}
 						</p>
 					</div>
 				)}
@@ -193,7 +195,7 @@ export default function WalletInfo() {
 				{/* 복사 시 알림 - 화면에 시각적 피드백 제공 */}
 				{isCopied && (
 					<div className="absolute top-0 right-0 bg-green-800/70 text-green-100 text-xs px-2 py-1 rounded m-2">
-						주소가 복사되었습니다!
+						{t('wallet.addressCopied')}
 					</div>
 				)}
 			</div>

@@ -8,10 +8,12 @@ import { Info, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContainer';
 import Modal from '@/components/ui/Modal';
 import ConnectWalletButton from '@/components/wallet/ConnectWalletButton';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type TransactionStatus = 'idle' | 'confirming' | 'processing' | 'success' | 'error';
 
 export default function WithdrawPanel() {
+	const { t } = useTranslation();
 	const { wallet, refreshBalance } = useWallet();
 	const { stakingInfo, setStakingInfo, isLoading, setIsLoading } = useStakingStore();
 	const { openWalletModal } = useWalletStore();
@@ -95,30 +97,30 @@ export default function WithdrawPanel() {
 		setError(null);
 
 		if (!value || parseFloat(value) <= 0) {
-			setError('0보다 큰 금액을 입력해주세요');
+			setError(t('withdraw.errors.enterPositiveAmount'));
 			return false;
 		}
 
 		const numValue = parseFloat(value);
 
 		if (isNaN(numValue)) {
-			setError('유효한 숫자를 입력해주세요');
+			setError(t('withdraw.errors.enterValidNumber'));
 			return false;
 		}
 
 		if (numValue < 1) {
-			setError('최소 해지 금액은 1 XRP입니다');
+			setError(t('withdraw.errors.minimumWithdraw'));
 			return false;
 		}
 
 		if (numValue > stakingInfo.stakedAmount) {
-			setError('스테이킹된 금액보다 많이 해지할 수 없습니다');
+			setError(t('withdraw.errors.exceedStaked'));
 			return false;
 		}
 
 		// XRP는 소수점 6자리까지만 허용
 		if (value.includes('.') && value.split('.')[1].length > 6) {
-			setError('XRP는 소수점 6자리까지만 입력 가능합니다');
+			setError(t('withdraw.errors.maxDecimals'));
 			return false;
 		}
 
@@ -191,9 +193,9 @@ export default function WithdrawPanel() {
 	// 스테이킹 없을 때 표시할 내용
 	const renderNoStaking = () => (
 		<div className="text-center py-6">
-			<p className="text-gray-400 mb-2">스테이킹된 XRP가 없습니다</p>
+			<p className="text-gray-400 mb-2">{t('withdraw.noStaking')}</p>
 			<Button className="mt-2" onClick={() => (window.location.href = '/stake')}>
-				스테이킹 하러 가기
+				{t('withdraw.goToStake')}
 			</Button>
 		</div>
 	);
@@ -202,14 +204,14 @@ export default function WithdrawPanel() {
 	const renderLoading = () => (
 		<div className="text-center py-8">
 			<Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-neon-purple" />
-			<p className="text-gray-400">스테이킹 정보를 불러오는 중...</p>
+			<p className="text-gray-400">{t('staking.processing.description')}</p>
 		</div>
 	);
 
 	// 지갑 미연결 시 표시할 내용
 	const renderNotConnected = () => (
 		<div className="py-6">
-			<ConnectWalletButton label="지갑 연결하기" />
+			<ConnectWalletButton label={t('common.connectWallet')} />
 		</div>
 	);
 
@@ -218,18 +220,18 @@ export default function WithdrawPanel() {
 		<>
 			<div className="p-3 bg-dark-background/40 rounded-md mb-4">
 				<p className="text-sm font-medium">
-					현재 스테이킹: <span className="text-white">{stakingInfo.stakedAmount.toFixed(2)} XRP</span>
+					{t('withdraw.currentStaking')}: <span className="text-white">{stakingInfo.stakedAmount.toFixed(2)} XRP</span>
 				</p>
 				<p className="text-sm font-medium">
-					누적 보상: <span className="text-neon-green">{stakingInfo.earnedReward.toFixed(4)} RLUSD</span>
+					{t('withdraw.accumulatedReward')}: <span className="text-neon-green">{stakingInfo.earnedReward.toFixed(4)} RLUSD</span>
 				</p>
 			</div>
 
 			<div className="mb-4">
 				<div className="flex justify-between mb-1">
-					<label className="block text-sm font-medium">해지 수량 (XRP)</label>
+					<label className="block text-sm font-medium">{t('withdraw.withdrawAmount')}</label>
 					<button className="text-xs text-neon-blue hover:text-neon-purple" onClick={setMaxAmount}>
-						최대 금액
+						{t('withdraw.maxAmount')}
 					</button>
 				</div>
 
@@ -271,13 +273,13 @@ export default function WithdrawPanel() {
 			<div className="mb-4 p-3 bg-dark-background/30 rounded-md flex items-start space-x-2">
 				<Info className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
 				<div className="text-xs text-gray-400">
-					<p className="mb-1">해지된 XRP는 지갑으로 반환되기까지 약 24시간이 소요됩니다.</p>
-					<p>해지 시 트랜잭션 비용(네트워크 수수료)이 발생할 수 있습니다.</p>
+					<p className="mb-1">{t('withdraw.info.processingTime')}</p>
+					<p>{t('withdraw.info.networkFee')}</p>
 				</div>
 			</div>
 
 			<Button className="w-full" onClick={executeWithdraw} disabled={!amount || !!error || parseFloat(amount) <= 0}>
-				해지 실행
+				{t('withdraw.title')}
 			</Button>
 		</>
 	);
@@ -285,7 +287,7 @@ export default function WithdrawPanel() {
 	return (
 		<>
 			<Card className="max-w-[768px] mx-auto">
-				<h2 className="text-xl font-semibold mb-4">스테이킹 해지</h2>
+				<h2 className="text-xl font-semibold mb-4">{t('withdraw.title')}</h2>
 
 				{!wallet.connected
 					? renderNotConnected()
@@ -300,7 +302,7 @@ export default function WithdrawPanel() {
 			<Modal
 				isOpen={isStatusModalOpen}
 				onClose={txStatus !== 'confirming' && txStatus !== 'processing' ? handleCloseStatusModal : () => {}}
-				title="스테이킹 해지 요청"
+				title={t('withdraw.title')}
 				size="sm"
 			>
 				<div className="space-y-4 text-center py-2">
@@ -308,15 +310,17 @@ export default function WithdrawPanel() {
 						<>
 							<div className="flex flex-col items-center space-y-3 py-4">
 								<Info className="h-10 w-10 text-neon-blue" />
-								<p className="font-medium">해지 요청을 확인해주세요</p>
-								<p className="text-sm text-gray-400">{amount} XRP를 스테이킹에서 해지합니다</p>
+								<p className="font-medium">{t('withdraw.confirm.title')}</p>
+								<p className="text-sm text-gray-400">
+									{t('withdraw.confirm.description', { amount })}
+								</p>
 							</div>
 							<div className="flex space-x-3">
 								<Button variant="outline" className="flex-1" onClick={handleCloseStatusModal}>
-									취소
+									{t('common.cancel')}
 								</Button>
 								<Button className="flex-1" onClick={() => setTxStatus('processing')}>
-									확인
+									{t('common.confirm')}
 								</Button>
 							</div>
 						</>
@@ -325,10 +329,8 @@ export default function WithdrawPanel() {
 					{txStatus === 'processing' && (
 						<div className="flex flex-col items-center space-y-3 py-4">
 							<Loader className="h-10 w-10 text-neon-blue animate-spin" />
-							<p className="font-medium">트랜잭션 처리 중</p>
-							<p className="text-sm text-gray-400">
-								XRPL 네트워크에서 트랜잭션이 처리되고 있습니다. 잠시만 기다려주세요...
-							</p>
+							<p className="font-medium">{t('withdraw.processing.title')}</p>
+							<p className="text-sm text-gray-400">{t('withdraw.processing.description')}</p>
 						</div>
 					)}
 
@@ -336,15 +338,14 @@ export default function WithdrawPanel() {
 						<>
 							<div className="flex flex-col items-center space-y-3 py-4">
 								<CheckCircle className="h-10 w-10 text-neon-green" />
-								<p className="font-medium">해지 요청 성공!</p>
+								<p className="font-medium">{t('withdraw.success.title')}</p>
 								<p className="text-sm text-gray-400">
-									{amount} XRP의 해지 요청이 성공적으로 처리되었습니다.
-									<br />약 24시간 내에 지갑으로 반환됩니다.
+									{t('withdraw.success.description', { amount })}
 								</p>
 								{txHash && <p className="text-xs font-mono bg-dark-background p-2 rounded-md">{txHash}</p>}
 							</div>
 							<Button className="w-full" onClick={handleCloseStatusModal}>
-								확인
+								{t('common.confirm')}
 							</Button>
 						</>
 					)}
@@ -353,11 +354,11 @@ export default function WithdrawPanel() {
 						<>
 							<div className="flex flex-col items-center space-y-3 py-4">
 								<AlertCircle className="h-10 w-10 text-red-500" />
-								<p className="font-medium">해지 요청 실패</p>
-								<p className="text-sm text-gray-400">{txError || '트랜잭션 처리 중 오류가 발생했습니다'}</p>
+								<p className="font-medium">{t('withdraw.error.title')}</p>
+								<p className="text-sm text-gray-400">{txError || t('withdraw.error.default')}</p>
 							</div>
 							<Button className="w-full" onClick={handleCloseStatusModal}>
-								확인
+								{t('common.confirm')}
 							</Button>
 						</>
 					)}
