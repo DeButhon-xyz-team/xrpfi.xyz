@@ -115,8 +115,13 @@ export const initXamanSDK = async (): Promise<void> => {
 	isInitializing = true;
 
 	try {
+		console.log('Initializing Xaman SDK...');
+		console.log('API Key:', XAMAN_API_KEY ? 'Present' : 'Missing');
+		console.log('Current URL:', window.location.href);
+
 		// 이미 로드되었는지 확인
 		if (window.document.getElementById('xaman-sdk')) {
+			console.log('Xaman SDK script already loaded');
 			isInitializing = false;
 			return;
 		}
@@ -131,11 +136,11 @@ export const initXamanSDK = async (): Promise<void> => {
 		const loadPromise = new Promise<void>((resolve, reject) => {
 			script.onload = () => {
 				try {
+					console.log('Xaman SDK script loaded');
 					// Xaman SDK 초기화
 					if (window.Xumm && XAMAN_API_KEY) {
-						xumm = new window.Xumm(XAMAN_API_KEY, {
-							redirectUrl: window.location.origin,
-						});
+						console.log('Creating Xaman SDK instance...');
+						xumm = new window.Xumm(XAMAN_API_KEY);
 
 						xumm.on('ready', () => {
 							console.log('Xaman SDK ready');
@@ -151,10 +156,9 @@ export const initXamanSDK = async (): Promise<void> => {
 							reject(error);
 						});
 					} else {
-						const error = new Error('Xaman SDK or API key is missing');
-						console.error(error.message);
+						console.error('Xaman SDK or API key is missing');
 						isInitializing = false;
-						reject(error);
+						reject(new Error('Xaman SDK or API key is missing'));
 					}
 				} catch (error) {
 					console.error('Xaman SDK initialization error:', error);
@@ -171,6 +175,7 @@ export const initXamanSDK = async (): Promise<void> => {
 		});
 
 		document.body.appendChild(script);
+		console.log('Xaman SDK script appended to document');
 
 		await loadPromise;
 	} catch (error) {
